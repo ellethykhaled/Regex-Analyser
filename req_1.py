@@ -66,6 +66,12 @@ def regexBracketValidation(regex):
                     return False
             else:
                 return False
+        elif c == '?' or c == '*' or c == '+':
+            if (len(all_brackets) > 0 and all_brackets[-1] == '[') or index == 0:
+                continue
+            elif regex[index - 2] == '?' or regex[index - 2] == '*' or regex[index - 2] == '+':
+                return False
+
     if len(all_brackets) > 0:
         return False
     return True
