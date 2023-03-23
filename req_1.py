@@ -159,7 +159,7 @@ def validateRegex(regex):
         return False
     return True
 
-def lexBracket(regex):
+def lexBrackets(regex):
     i = -1
     last_bracket = 0
     indices = []
@@ -167,7 +167,16 @@ def lexBracket(regex):
         i += 1
         if i < last_bracket:
             continue
-        if c == '(':
+        if c == '[':
+            indices.append(i)
+            brackets_indices = [i]
+            for j in range(i + 1, len(regex)):
+                if regex[j] == ']':
+                    brackets_indices.pop()
+                    if len(brackets_indices) == 0:
+                        last_bracket = j
+                        break
+        elif c == '(':
             indices.append(i)
             brackets_indices = [i]
             for j in range(i + 1, len(regex)):
@@ -176,7 +185,7 @@ def lexBracket(regex):
                 elif regex[j] == ')':
                     brackets_indices.pop()
                     if len(brackets_indices) == 0:
-                        lexBracket(regex[i+1:j])
+                        lexBrackets(regex[i+1:j])
                         last_bracket = j
                         break
         elif c == ')' or c == '?' or c == '*' or c == '+':
@@ -190,7 +199,7 @@ def lexBracket(regex):
 input_regex = input("Enter regular expression: ")
 if validateRegex(input_regex):
     print('Valid\n')
-    lexBracket(input_regex)
+    lexBrackets(input_regex)
 else:
     print('Invalid')
 
