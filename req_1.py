@@ -87,6 +87,8 @@ def lastBackslashValidation(regex):
     return True
 
 def squareBracketContentsValidation(regex):
+    if len(regex) == 0 or (len(regex) == 1 and regex[0] == '^'):
+        return False
     index = 0
     dash_indices = []
     for c in regex:
@@ -169,6 +171,62 @@ def validateRegex(regex):
 
 character_level_extra = []
 
+def lexSquareBrackets(regex, level):
+    is_allowed = True
+    allowed_characters = []
+    index = 0
+    dash_indices = []
+    for c in regex:
+        if index == 1 and c == '-' and regex[0] == '^':
+            index += 1
+            continue
+        if c == '-' and index > 0 and index < len(regex) - 1:
+            if len(dash_indices) > 0:
+                old_index = dash_indices[-1]
+                if index == old_index + 1 or index == old_index + 2:
+                    index += 1
+                    continue
+            dash_indices.append(index)
+        index += 1
+    if regex[0] == '^':
+        is_allowed = False
+
+    allowed_tuples = []
+    for dash_index in dash_indices:
+        current_tuple = (regex[dash_index - 1], regex[dash_index + 1])
+        if current_tuple not in allowed_tuples:
+            allowed_tuples.append(current_tuple)
+
+    allowed_all = []
+
+    index = -1
+    dash_index = 0
+    for c in regex:
+        index += 1
+        if index == 0 and regex[0] == '^':
+            continue
+        if dash_index < len(dash_indices):
+            if index == dash_indices[dash_index] or index == dash_indices[dash_index] - 1:
+                continue
+            elif index == dash_indices[dash_index] + 1:
+                dash_index += 1
+                continue
+        add_c = True
+        for t in allowed_tuples:
+            if c >= t[0] and c <= t[1]:
+                add_c = False
+        if add_c and c not in allowed_characters:
+            allowed_characters.append(c)
+
+    for c in allowed_characters:
+        allowed_all.append(c)
+    for t in allowed_tuples:
+        allowed_all.append(t)
+    
+    # print(allowed_all)
+    
+    character_level_extra.append((allowed_all, level, is_allowed))
+
 def lexBrackets(regex, level = 0):
     i = -1
     last_ignorer = 0
@@ -185,6 +243,7 @@ def lexBrackets(regex, level = 0):
                 if regex[j] == ']':
                     brackets_indices.pop()
                     if len(brackets_indices) == 0:
+                        lexSquareBrackets(regex[i+1:j], level + 1)
                         last_ignorer = j
                         break
         elif c == '(':
@@ -213,6 +272,12 @@ def lexBrackets(regex, level = 0):
                 next = regex[i + 1]
                 if next == '?' or next == '*' or next == '+' or next == '|':
                     extra = next
+                elif regex[i] == '\\':
+                    extra = next
+                    if i + 2 < len(regex):
+                        next_of_next = regex[i + 2]
+                        if next_of_next == '?' or next_of_next == '*' or next_of_next == '+' or next_of_next == '|':
+                            extra += next_of_next
             character_level_extra.append((c, level, extra))
             indices.append(i)
     characters = []
