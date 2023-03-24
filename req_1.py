@@ -286,10 +286,37 @@ def lexBrackets(regex, level = 0):
     # print(regex, characters)
     # print(regex, indices)
 
+ALL_LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+ALL_NUMBERS = "1234567890"
+ALL_SPECIAL = "!@#-_+=$%^&*()?><"
+
+# State: (name, isTerminatingState, [(input, State)]
+states = [('S0', False, [])]
+state_index = 1
+
+def createStates(character_level_extra, current_state_indices = [0]):
+
+    skipper = 0
+    for c_l_e in character_level_extra:
+        if skipper > 0:
+            skipper -= 1
+            continue
+        character = c_l_e[0]
+        level = c_l_e[1]
+        extra = c_l_e[2]
+        if character == '[':
+            skipper = 1
+
+        print(c_l_e)
+
+
+    pass
+
 input_regex = input("Enter regular expression: ")
 if validateRegex(input_regex):
     print('Valid\n')
     lexBrackets(input_regex)
-    print(character_level_extra)
+    print(character_level_extra, '\n')
+    createStates(character_level_extra)
 else:
     print('Invalid')
