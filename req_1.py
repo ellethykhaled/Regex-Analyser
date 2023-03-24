@@ -297,6 +297,7 @@ def createStates(character_level_extra, state_index = 1, current_states_indices 
     print(character_level_extra, '\n')
     skipper = 0
     index = -1
+    first_input = None
     for c_l_e in character_level_extra:
         index += 1
         if skipper > 0:
@@ -320,7 +321,8 @@ def createStates(character_level_extra, state_index = 1, current_states_indices 
                     available_input_string += (c_t[0] + '-' + c_t[1])
                 if add_comma:
                     available_input_string += ', '
-            
+            if first_input is None:
+                first_input = available_input_string
             # Create the new state
             new_state_name = 'S'+str(state_index)
             new_state = (new_state_name, False, [])
@@ -345,13 +347,15 @@ def createStates(character_level_extra, state_index = 1, current_states_indices 
                     available_input_string += (c_t[0] + '-' + c_t[1])
                 if add_comma:
                     available_input_string += ', '
+            if first_input is None:
+                first_input = available_input_string
         elif character == '(':
             for iterator in range(index, len(character_level_extra)):
                 current_character = character_level_extra[iterator][0]
                 current_level = character_level_extra[iterator][1]
                 if current_character == ')' and level == current_level:
                     skipper = iterator - index
-                    new_indices, state_index = createStates(character_level_extra[index + 1:iterator], state_index, current_states_indices, False)
+                    new_indices, state_index, available_input_string = createStates(character_level_extra[index + 1:iterator], state_index, current_states_indices, False)
                     # print(current_states_indices, new_indices, state_index)
                     character = ')'
                     extra = character_level_extra[iterator][2]
@@ -371,6 +375,8 @@ def createStates(character_level_extra, state_index = 1, current_states_indices 
         else:
             # Create the new state
             available_input_string = character
+            if first_input is None:
+                first_input = available_input_string
             new_state_name = 'S'+str(state_index)
             new_state = (new_state_name, False, [])
             states.append(new_state)
@@ -381,7 +387,6 @@ def createStates(character_level_extra, state_index = 1, current_states_indices 
             state_index +=1
         if extra == '*':
             current_state = states[state_index - 1]
-            print(states, current_state, base_call)
             current_state[2].append((available_input_string, current_state[0]))
             current_states_indices.append(state_index - 1)
         elif extra == '+':
@@ -394,6 +399,8 @@ def createStates(character_level_extra, state_index = 1, current_states_indices 
         elif extra == '|':
             # Create the new state
             available_input_string = character_level_extra[index + 1][0]
+            if first_input is None:
+                first_input = available_input_string
             skipper = 1
             current_states_indices = list(dict.fromkeys(current_states_indices))
             for current_state_index in current_states_indices:
@@ -415,16 +422,17 @@ def createStates(character_level_extra, state_index = 1, current_states_indices 
                         sub_index += 1
                 next_extra = character_level_extra[index + skipper][2]
         else:
+            print(character)
             if character == '(' or character == '[':
                 pass
-            elif index == 0 or character_level_extra[index - 1][2] == '?' or character_level_extra[index - 1][2] is None:
+            elif index == 0 or character_level_extra[index - 1][2] == '?' or character_level_extra[index - 1][2] == '*' or character_level_extra[index - 1][2] is None:
                 current_states_indices.clear()
             current_states_indices.append(state_index - 1)
     if base_call == True and index == len(character_level_extra) - 1:
         for indexy in current_states_indices:
             states[indexy] = (states[indexy][0], True, states[indexy][2])
     if base_call == False:
-        return current_states_indices, state_index
+        return current_states_indices, state_index, first_input
 
 input_regex = input("Enter regular expression: ")
 if validateRegex(input_regex):
