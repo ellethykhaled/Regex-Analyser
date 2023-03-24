@@ -167,7 +167,9 @@ def validateRegex(regex):
         return False
     return True
 
-def lexBrackets(regex):
+character_level_extra = []
+
+def lexBrackets(regex, level = 0):
     i = -1
     last_ignorer = 0
     indices = []
@@ -177,6 +179,7 @@ def lexBrackets(regex):
             continue
         if c == '[':
             indices.append(i)
+            character_level_extra.append((c, level, None))
             brackets_indices = [i]
             for j in range(i + 1, len(regex)):
                 if regex[j] == ']':
@@ -186,6 +189,7 @@ def lexBrackets(regex):
                         break
         elif c == '(':
             indices.append(i)
+            character_level_extra.append((c, level, None))
             brackets_indices = [i]
             for j in range(i + 1, len(regex)):
                 if regex[j] == '(':
@@ -193,27 +197,34 @@ def lexBrackets(regex):
                 elif regex[j] == ')':
                     brackets_indices.pop()
                     if len(brackets_indices) == 0:
-                        lexBrackets(regex[i+1:j])
+                        lexBrackets(regex[i+1:j], level + 1)
                         last_ignorer = j
                         break
-        elif c == '?' or c == '*' or c == '+':
+        elif c == '?' or c == '*' or c == '+' or c == '|':
             continue
         else:
             if c == '\\':
                 last_ignorer += 2
             if not(c == ')' or c == ']'):
-                print(regex[i])
+                # print(regex[i])
+                pass
+            extra = None
+            if i + 1 < len(regex):
+                next = regex[i + 1]
+                if next == '?' or next == '*' or next == '+' or next == '|':
+                    extra = next
+            character_level_extra.append((c, level, extra))
             indices.append(i)
     characters = []
     for j in indices:
         characters.append(regex[j])
-    print(regex, characters)
-    print(regex, indices)
-
+    # print(regex, characters)
+    # print(regex, indices)
 
 input_regex = input("Enter regular expression: ")
 if validateRegex(input_regex):
     print('Valid\n')
     lexBrackets(input_regex)
+    print(character_level_extra)
 else:
     print('Invalid')
