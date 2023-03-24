@@ -292,12 +292,13 @@ ALL_SPECIAL = "!@#-_+=$%^&*()?><"
 
 # State: (name, isTerminatingState, [(input, State)]
 states = [('S0', False, [])]
-state_index = 1
 
-def createStates(character_level_extra, current_state_indices = [0]):
-
+def createStates(character_level_extra, state_index = 1, current_states_indices = [0]):
+    new_state_indices = []
     skipper = 0
+    index = -1
     for c_l_e in character_level_extra:
+        index += 1
         if skipper > 0:
             skipper -= 1
             continue
@@ -306,10 +307,74 @@ def createStates(character_level_extra, current_state_indices = [0]):
         extra = c_l_e[2]
         if character == '[':
             skipper = 1
+            available_index = -1
+            available_input_string = ''
+            for c_t in character_level_extra[index + 1][0]:
+                available_index += 1
+                add_comma = False
+                if available_index < len(character_level_extra[index + 1][0]) - 1:
+                    add_comma = True
+                if type(c_t) is str:        # Character
+                    available_input_string += c_t
+                elif type(c_t) is tuple:    # Tuple
+                    available_input_string += (c_t[0] + '-' + c_t[1])
+                if add_comma:
+                    available_input_string += ', '
+            
+            # Create the new state
+            new_state_name = 'S'+str(state_index)
+            new_state = (new_state_name, False, [])
+            states.append(new_state)
+            state_index +=1
 
-        print(c_l_e)
-
-
+            # Point the current older states to the new state
+            current_states_indices = list(dict.fromkeys(current_states_indices))
+            for old_state_index in current_states_indices:
+                states[old_state_index][2].append((available_input_string, new_state_name))
+        elif character == ']':
+            available_index = -1
+            available_input_string = ''
+            for c_t in character_level_extra[index - 1][0]:
+                available_index += 1
+                add_comma = False
+                if available_index < len(character_level_extra[index - 1][0]) - 1:
+                    add_comma = True
+                if type(c_t) is str:        # Character
+                    available_input_string += c_t
+                elif type(c_t) is tuple:    # Tuple
+                    available_input_string += (c_t[0] + '-' + c_t[1])
+                if add_comma:
+                    available_input_string += ', '
+        elif character == '(':
+            opening_bracket = index
+            
+        else:
+            # Create the new state
+            available_input_string = character
+            new_state_name = 'S'+str(state_index)
+            new_state = (new_state_name, False, [])
+            states.append(new_state)
+            current_states_indices = list(dict.fromkeys(current_states_indices))
+            for current_state_index in current_states_indices:
+                states[current_state_index][2].append((character, new_state_name))
+            current_states_indices.append(state_index)
+            state_index +=1
+        if extra == '*':
+            current_state = states[state_index - 1]
+            current_state[2].append((available_input_string, current_state[0]))
+            current_states_indices.append(state_index - 1)
+        elif extra == '+':
+            current_state = states[state_index - 1]
+            current_state[2].append((available_input_string, new_state_name))
+            current_states_indices.clear()
+            current_states_indices.append(state_index - 1)
+        elif extra == '?':
+            current_state = states[state_index - 1]
+            current_states_indices.append(state_index - 1)
+        else:
+            if index == 0 or (index > 0 and character_level_extra[index - 1][2] != '?'):
+                current_states_indices.clear()
+            current_states_indices.append(state_index - 1)
     pass
 
 input_regex = input("Enter regular expression: ")
@@ -318,5 +383,7 @@ if validateRegex(input_regex):
     lexBrackets(input_regex)
     print(character_level_extra, '\n')
     createStates(character_level_extra)
+
+    print(states)
 else:
     print('Invalid')
