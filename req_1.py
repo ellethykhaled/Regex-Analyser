@@ -1,3 +1,9 @@
+import sys
+import json
+from graphviz import Digraph
+
+EPSILON = "ε" #ε
+
 def firstElementValidation(regex):
     if len(regex) > 0:
         c = regex[0]
@@ -260,6 +266,10 @@ def lexBrackets(regex, level = 0):
                         last_ignorer = j
                         break
         elif c == '?' or c == '*' or c == '+' or c == '|':
+            if c == '|' and i > 0:
+                previous = regex[i - 1]
+                if previous == '?' or previous == '*' or previous == '+':
+                    character_level_extra.append((c, level, None))
             continue
         else:
             if c == '\\':
@@ -313,6 +323,7 @@ ALL_SPECIAL = "!@#-_+=$%^&*()?><"
 # State: (name, isTerminatingState, [(input, State)]
 states = [('S0', False, [])]
 
+# The problem with this function is that it does not follow "Thompson's Rules"
 def createStates(character_level_extra, state_index = 1, current_states_indices = [0], base_call = True):
     skipper = 0
     index = -1
@@ -414,7 +425,11 @@ def createStates(character_level_extra, state_index = 1, current_states_indices 
         if extra == '*':
             current_state = states[state_index - 1]
             if character != ')':
-                current_state[2].append((available_input_string, current_state[0]))
+                current_states_indices.clear()
+                states[state_index - 2][2].clear()
+                states[state_index - 2][2].append((EPSILON, current_state[0]))
+                current_state[2].append((available_input_string, 'S'+str(state_index - 2)))
+                current_states_indices.append(state_index - 1)
             else:
                 if first_state_index is not None:
                     in_out = (available_input_string, 'S' + str(first_state_index))
@@ -429,9 +444,11 @@ def createStates(character_level_extra, state_index = 1, current_states_indices 
         elif extra == '+':
             current_state = states[state_index - 1]
             if character != ')':
-                current_state[2].append((available_input_string, new_state_name))
+                # current_state[2].append((available_input_string, new_state_name))
+                # current_state[2].append((EPSILON, 'S'+str(state_index - 2)))
                 current_states_indices.clear()
                 current_states_indices.append(state_index - 1)
+                states[state_index - 1][2].append((EPSILON, 'S'+str(state_index - 2)))
             else:
                 for new_index in new_indices:
                     in_out = (available_input_string, 'S' + str(first_state_index))
@@ -440,6 +457,14 @@ def createStates(character_level_extra, state_index = 1, current_states_indices 
                 current_states_indices.clear()
                 current_states_indices.extend(new_indices)
         elif extra == '?':
+            # print("Here", states, character, current_states_indices)
+            # current_states_indices.clear()
+            current_states_indices.append(state_index - 1)
+            current_states_indices = list(dict.fromkeys(current_states_indices))
+            for current_index in current_states_indices:
+                if current_index != state_index - 1:
+                    states[current_index][2].append((EPSILON, 'S'+str(state_index - 1)))
+            current_states_indices.clear()
             current_states_indices.append(state_index - 1)
         elif extra == '|':
             available_input_string = character_level_extra[index + 1][0]
@@ -472,13 +497,208 @@ def createStates(character_level_extra, state_index = 1, current_states_indices 
             # elif (index == 0 and base_call) or (character != ')' and (character_level_extra[index][2] != '?' and character_level_extra[index][2] != '*')):
                 # print('Clearing', character, character_level_extra[index - 1][2], index, base_call, current_states_indices)
                 current_states_indices.clear()
-            current_states_indices.append(state_index - 1)
+            else:
+                current_states_indices.clear()
+            # print(states, state_index - 1)
+
+            new_state_name = 'S'+str(state_index)
+            new_state = (new_state_name, False, [])
+            states.append(new_state)
+            states[state_index]
+            states[state_index - 1][2].append((EPSILON, 'S'+str(state_index)))
+
+            current_states_indices.append(state_index)
+            state_index += 1
+
     if base_call == True and index == len(character_level_extra) - 1:
         current_states_indices = list(dict.fromkeys(current_states_indices))
         for indexy in current_states_indices:
             states[indexy] = (states[indexy][0], True, states[indexy][2])
     if base_call == False:
         return current_states_indices, state_index, first_input, first_state_index
+    
+def createStates2(character_level_extra, state_index = 1, previous_state_index = 0, next_state_index = None):
+    base_call = False
+    if next_state_index is None:
+        base_call = True
+
+    skipper = 0
+    index = -1
+    for c_l_e in character_level_extra:
+        index += 1
+
+        if skipper > 0:
+            skipper -= 1
+            continue
+
+        # in-state
+        previous_state = states[previous_state_index]
+
+        character, level, extra = c_l_e
+
+        # Create the new state to be next (out-state)
+        if next_state_index is None or previous_state_index == next_state_index:
+            next_state_index = state_index
+            new_state_name = 'S'+str(state_index)
+            new_state = (new_state_name, False, [])
+            states.append(new_state)
+            next_state = states[state_index]
+
+            state_index += 1
+        else:
+            next_state = states[next_state_index]
+
+
+        if character == '[':
+            skipper = 1
+            available_index = -1
+            characters = ''
+            for c_t in character_level_extra[index + 1][0]:
+                available_index += 1
+                add_comma = False
+                if available_index < len(character_level_extra[index + 1][0]) - 1:
+                    add_comma = True
+                if type(c_t) is str:        # Character
+                    characters += c_t
+                elif type(c_t) is tuple:    # Tuple
+                    characters += (c_t[0] + '-' + c_t[1])
+                if add_comma:
+                    characters += ', '
+            # Create the new states
+            new_state_name = 'S'+str(state_index)
+            new_state = (new_state_name, False, [])
+            states.append(new_state)
+            current_state1 = states[state_index]
+            state_index += 1
+
+            new_state_name = 'S'+str(state_index)
+            new_state = (new_state_name, False, [])
+            states.append(new_state)
+            current_state2 = states[state_index]
+            state_index += 1
+
+            previous_state[2].append((EPSILON, current_state1[0]))
+            current_state1[2].append((characters, current_state2[0]))
+            current_state2[2].append((EPSILON, next_state[0]))
+
+        elif character == ']':
+            pass
+        elif character == '(':
+            for iterator in range(index, len(character_level_extra)):
+                current_character = character_level_extra[iterator][0]
+                current_level = character_level_extra[iterator][1]
+                if current_character == ')' and level == current_level:
+                    skipper = iterator - index
+                    new_indices, state_index, available_input_string, sub_first_state_index = createStates(character_level_extra[index + 1:iterator], state_index, current_states_indices, False)
+                    if previous_state_index is None:
+                        previous_state_index = sub_first_state_index
+                    if first_input is None:
+                        first_input = available_input_string
+                    # print(current_states_indices, new_indices, state_index)
+                    character = ')'
+                    extra = character_level_extra[iterator][2]
+                    if extra == '*':
+                        current_states_indices.extend(new_indices)
+                    elif extra == '?':
+                        current_states_indices.extend(new_indices)
+                    elif extra == '+':
+                        pass                            
+                    else:
+                        if iterator + 1 < len(character_level_extra) and character_level_extra[iterator + 1][1] != ')':
+                            current_states_indices.clear()
+                        current_states_indices.extend(new_indices)
+                    break
+        elif character == '|':
+            next_character = character_level_extra[index + 1][0]
+            if next_character == '[':
+                pass
+            elif next_character == ']':
+                pass
+            elif next_character == '(':
+                pass
+            elif next_character == ')':
+                pass
+            else:
+                # Create the new current states
+                new_state_name = 'S'+str(state_index)
+                new_state = (new_state_name, False, [])
+                states.append(new_state)
+                current_state1 = states[state_index]
+
+                state_index += 1
+
+                new_state_name = 'S'+str(state_index)
+                new_state = (new_state_name, False, [])
+                states.append(new_state)
+                current_state2 = states[state_index]
+
+                state_index += 1
+
+                previous_state[2].append((EPSILON, current_state1[0]))
+                current_state1[2].append((next_character, current_state2[0]))
+                current_state2[2].append((EPSILON, next_state[0]))
+
+                extra = character_level_extra[index + 1][2]
+                skipper = 1
+                if index + skipper == len(character_level_extra) - 1:
+                    print('Reached Terminating State:', next_state_index, states[next_state_index],'\n')
+                    t_state = states[next_state_index]
+                    states[next_state_index] = (t_state[0], True, t_state[2])
+        else:
+            # Create the new current states
+            new_state_name = 'S'+str(state_index)
+            new_state = (new_state_name, False, [])
+            states.append(new_state)
+            current_state1 = states[state_index]
+
+            state_index += 1
+
+            new_state_name = 'S'+str(state_index)
+            new_state = (new_state_name, False, [])
+            states.append(new_state)
+            current_state2 = states[state_index]
+
+            state_index += 1
+
+            previous_state[2].append((EPSILON, current_state1[0]))
+            current_state1[2].append((character, current_state2[0]))
+            current_state2[2].append((EPSILON, next_state[0]))
+
+
+        if extra == '*':
+            current_state2[2].append((EPSILON, current_state1[0]))
+            current_state1[2].append((EPSILON, next_state[0]))
+        elif extra == '+':
+            current_state2[2].append((EPSILON, current_state1[0]))
+        elif extra == '?':
+            current_state1[2].append((EPSILON, next_state[0]))
+
+        if extra != '|' and character != '[' and index < len(character_level_extra) - 1 and character_level_extra[index + 1][0] != '|':
+            print('Proceeding Here', c_l_e, previous_state_index, next_state_index)
+            previous_state_index = next_state_index
+
+        if index == len(character_level_extra) - 1:
+            t_state = states[next_state_index]
+            states[next_state_index] = (t_state[0], True, t_state[2])
+            print('Terminating State:', next_state_index, states[next_state_index],'\n')
+    
+def writeNFA(states):
+    with open('NFA.json', 'w', encoding='utf-8') as f:
+        dict_to_write = {"startingState": "S0"}
+        for state in states:
+            sub_dict = {}
+            sub_dict["isTerminatingState"] = state[1]
+            for input_output in state[2]:
+                sub_dict[input_output[0]] = input_output[1]
+            dict_to_write[state[0]] = sub_dict
+        json_string = json.dumps(dict_to_write, indent=4)
+        f.write(json_string)
+
+def drawNFA():
+    finiteGraph = Digraph(graph_attr={'rankdir': 'LR'})
+    picFile = "DFA"
+    finiteGraph.render(picFile, view =True, format= 'png', overwrite_source= True)
+
 
 input_regex = input("\nEnter regular expression: ")
 if validateRegex(input_regex):
@@ -486,7 +706,10 @@ if validateRegex(input_regex):
     lexBrackets(input_regex)
     character_level_extra = removeUnnessecaryBrackets(character_level_extra)
     print(character_level_extra, '\n')
-    createStates(character_level_extra)
+    createStates2(character_level_extra)
     print(states, '\n')
+    writeNFA(states)
+    # drawNFA()
+                
 else:
     print('Invalid')
