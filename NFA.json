@@ -9,7 +9,7 @@
    },
    "S2": {
       "isTerminatingState": false,
-      "\\+": "S3"
+      "Any but d, a-c": "S3"
    },
    "S3": {
       "isTerminatingState": false,

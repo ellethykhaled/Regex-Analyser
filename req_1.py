@@ -318,7 +318,9 @@ def removeUnnessecaryBrackets(character_level_extra):
 
 ALL_LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 ALL_NUMBERS = "1234567890"
-ALL_SPECIAL = "!@#-_+=$%^&*()?><"
+ALL_SPECIAL = " ~[{]}!@#-_+=$%^&*()?><"
+
+ALL_CHARACTERS = ALL_LETTERS+ALL_NUMBERS+ALL_SPECIAL
 
 # State: (name, isTerminatingState, [(input, State)]
 states = [('S0', False, [])]
@@ -383,6 +385,9 @@ def createStates(character_level_extra, state_index = 1, previous_state_index = 
             current_state2 = states[state_index]
             state_index += 1
 
+            if character_level_extra[index + 1][2] == False:
+                characters = "Any but " + characters
+
             previous_state[2].append((EPSILON, current_state1[0]))
             current_state1[2].append((characters, current_state2[0]))
             current_state2[2].append((EPSILON, next_state[0]))
@@ -409,6 +414,16 @@ def createStates(character_level_extra, state_index = 1, previous_state_index = 
                 else:
                     character += extra[0]
                     extra = extra[1]
+            if character == '.':
+                character = ALL_CHARACTERS
+            elif character == '\\w':
+                character = ALL_LETTERS+ALL_NUMBERS
+            elif character == '\\W':
+                character = ALL_SPECIAL
+            elif character == '\\d':
+                character = ALL_NUMBERS
+            elif character == '\\D':
+                character = ALL_LETTERS+ALL_SPECIAL
             # Create the new current states
             new_state_name = 'S'+str(state_index)
             new_state = (new_state_name, False, [])
