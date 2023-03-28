@@ -1,0 +1,59 @@
+digraph {
+	graph [rankdir=LR]
+	node [shape=circle]
+	S0
+	node [shape=doublecircle]
+	S1
+	node [shape=circle]
+	S2
+	node [shape=circle]
+	S3
+	node [shape=circle]
+	S4
+	node [shape=circle]
+	S5
+	node [shape=circle]
+	S6
+	node [shape=circle]
+	S7
+	node [shape=circle]
+	S8
+	node [shape=circle]
+	S9
+	node [shape=circle]
+	S10
+	node [shape=circle]
+	S11
+	node [shape=circle]
+	S12
+	node [shape=circle]
+	S13
+	node [shape=circle]
+	S14
+	node [shape=circle]
+	S15
+	node [shape=circle]
+	S16
+	S0 -> S3 [label="ε"]
+	S0 -> S6 [label="ε"]
+	S2 -> S15 [label="ε"]
+	S3 -> S4 [label=a]
+	S3 -> S1 [label="ε"]
+	S4 -> S2 [label="ε"]
+	S4 -> S3 [label="ε"]
+	S5 -> S9 [label="ε"]
+	S5 -> S12 [label="ε"]
+	S6 -> S7 [label=b]
+	S7 -> S5 [label="ε"]
+	S8 -> S2 [label="ε"]
+	S9 -> S10 [label=c]
+	S10 -> S8 [label="ε"]
+	S11 -> S8 [label="ε"]
+	S12 -> S13 [label=d]
+	S13 -> S11 [label="ε"]
+	S14 -> S1 [label="ε"]
+	S14 -> S3 [label="ε"]
+	S15 -> S16 [label=e]
+	S15 -> S14 [label="ε"]
+	S16 -> S14 [label="ε"]
+}
