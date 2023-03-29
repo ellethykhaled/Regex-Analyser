@@ -1,5 +1,4 @@
-import os
-import json
+import json, os
 from graphviz import Digraph
 
 EPSILON = "ε" #ε
@@ -367,7 +366,6 @@ def createStates(character_level_extra, state_index = 1, previous_state_index = 
     if next_state_index is None:
         base_call = True
     else:
-        absolute_previous_updated = False
         absolute_next_index = next_state_index
         absolute_previous_index = previous_state_index
 
@@ -510,10 +508,6 @@ def createStates(character_level_extra, state_index = 1, previous_state_index = 
             or_flag = True
         else:
             or_flag = None
-        
-        if not base_call and not absolute_previous_updated:
-            absolute_previous_index = int(current_state1[0][1:])
-            absolute_previous_updated = True
 
     if base_call and state_indexer == len(character_level_extra) - 1:
         if next_state_index is None:
@@ -543,7 +537,7 @@ def writeNfa(states):
         json_string = json.dumps(dict_to_write, indent=3)
         f.write(json_string)
 
-def drawNfa():
+def drawNfa(view_graph):
     nfa_graph = Digraph(graph_attr={'rankdir': 'LR'})
     with open('NFA.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
@@ -556,7 +550,7 @@ def drawNfa():
         else:
             nfa_graph.attr("node", shape = 'doublecircle')
         nfa_graph.node(state)
-        if data[state] == data["startingState"]:
+        if state == data["startingState"]:
             nfa_graph.attr("node", shape = 'none')
             nfa_graph.node('')
             nfa_graph.edge("", state)
@@ -570,10 +564,10 @@ def drawNfa():
                 nfa_graph.edge(state, edge, edges)
 
     picFile = "NFA"
-    nfa_graph.render(picFile, view = True, format = 'png', overwrite_source = True)
+    nfa_graph.render(picFile, view = view_graph, format = 'png', overwrite_source = True)
     os.remove("NFA")
 
-def nfaFlow():
+def nfaFlow(view_graph = False):
     input_regex = input("\nEnter regular expression: ")
     if validateRegex(input_regex):
         print('\nValid\n')
@@ -589,7 +583,7 @@ def nfaFlow():
         print(states, '\n')
 
         writeNfa(states)
-        drawNfa()
+        drawNfa(view_graph)
 
         print(input_regex + '\n')
         return True   

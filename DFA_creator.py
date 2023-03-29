@@ -1,9 +1,7 @@
-import json
+import json, os
 from graphviz import Digraph
-from NFA_creator import nfaFlow
 
 EPSILON = "ε" #ε
-NOT_EPSILON = "!ε" #ε
 
 def createNfaStates():
     with open('NFA.json', 'r', encoding='utf-8') as f:
@@ -67,10 +65,32 @@ def createDfaStates(nfa_states):
         # print('\nAfter deletion', nfa_states, '\n\n')
     return nfa_states
 
-# nfaFlow()
-def dfaFlow():
+def drawDfa(dfa_states, view_graph):
+    dfa_graph = Digraph(graph_attr={'rankdir': 'LR'})
+
+    index = 0
+    for state in dfa_states:
+        if dfa_states[state][0] == False:
+            dfa_graph.attr("node", shape = 'circle')
+        else:
+            dfa_graph.attr("node", shape = 'doublecircle')
+        dfa_graph.node(state)
+        if index == 0:
+            index += 1
+            dfa_graph.attr("node", shape = 'none')
+            dfa_graph.node('')
+            dfa_graph.edge("", state)
+    for state in dfa_states:
+        for input_next in dfa_states[state][1]:
+            dfa_graph.edge(state, input_next[1], input_next[0])
+
+    picFile = "DFA"
+    dfa_graph.render(picFile, view = view_graph, format = 'png', overwrite_source = True)
+    os.remove("DFA")
+
+def dfaFlow(view_graph = False):
     nfa_states = createNfaStates()
     dfa_states = createDfaStates(nfa_states)
     print(dfa_states)
-
-dfaFlow()
+    drawDfa(dfa_states, view_graph)
+    return dfa_states
