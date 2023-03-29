@@ -21,6 +21,7 @@ def createNfaStates():
 
     return states
 
+# Epsilon Closure here is not correct
 def createDfaStates(nfa_states):
     while True:
         found_epsilon = False
