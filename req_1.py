@@ -1,13 +1,22 @@
-import sys
 import json
 from graphviz import Digraph
 
 EPSILON = "ε" #ε
+PLUS = '+'
+STAR = '*'
+Q_MARK = '?'
+OR = '|'
+
+ALL_LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+ALL_NUMBERS = "1234567890"
+ALL_SPECIAL = " ~[{]}!@#-_+=$%^&*()?><"
+
+ALL_CHARACTERS = ALL_LETTERS+ALL_NUMBERS+ALL_SPECIAL
 
 def firstElementValidation(regex):
     if len(regex) > 0:
         c = regex[0]
-        if c == '+' or c == '*' or c == '/' or c == '?':
+        if c == PLUS or c == STAR or c == '/' or c == Q_MARK:
             return False
     return True
 
@@ -72,10 +81,10 @@ def regexBracketValidation(regex):
                     return False
             else:
                 return False
-        elif c == '?' or c == '*' or c == '+':
+        elif c == Q_MARK or c == STAR or c == PLUS:
             if (len(all_brackets) > 0 and all_brackets[-1] == '[') or index == 0:
                 continue
-            elif regex[index - 2] == '?' or regex[index - 2] == '*' or regex[index - 2] == '+':
+            elif regex[index - 2] == Q_MARK or regex[index - 2] == STAR or regex[index - 2] == PLUS:
                 return False
 
     if len(all_brackets) > 0:
@@ -265,14 +274,14 @@ def lexBrackets(regex, level = 0):
                         lexBrackets(regex[i+1:j], level + 1)
                         last_ignorer = j
                         break
-        elif c == '?' or c == '*' or c == '+' or c == '|':
-            if c == '|':
+        elif c == Q_MARK or c == STAR or c == PLUS or c == OR:
+            if c == OR:
                 if i > 0:
                     previous = regex[i - 1]
-                    if previous == '?' or previous == '*' or previous == '+':
+                    if previous == Q_MARK or previous == STAR or previous == PLUS:
                         character_level_extra.append((c, level, None))
                 else:
-                    character_level_extra.append((EPSILON, level, '|'))
+                    character_level_extra.append((EPSILON, level, OR))
             continue
         else:
             if c == '\\':
@@ -283,13 +292,13 @@ def lexBrackets(regex, level = 0):
             extra = None
             if i + 1 < len(regex):
                 next = regex[i + 1]
-                if next == '?' or next == '*' or next == '+' or next == '|':
+                if next == Q_MARK or next == STAR or next == PLUS or next == OR:
                     extra = next
                 elif regex[i] == '\\':
                     extra = next
                     if i + 2 < len(regex):
                         next_of_next = regex[i + 2]
-                        if next_of_next == '?' or next_of_next == '*' or next_of_next == '+' or next_of_next == '|':
+                        if next_of_next == Q_MARK or next_of_next == STAR or next_of_next == PLUS or next_of_next == OR:
                             extra += next_of_next
             character_level_extra.append((c, level, extra))
             indices.append(i)
@@ -301,7 +310,6 @@ def lexBrackets(regex, level = 0):
 
 
 def removeUnnessecaryBrackets(character_level_extra):
-    print('Before removing', character_level_extra)
     while True:
         found = False
         index = -1
@@ -313,8 +321,8 @@ def removeUnnessecaryBrackets(character_level_extra):
                 for sub_index in range(index, len(character_level_extra)):
                     if character_level_extra[sub_index][0] == ')' and character_level_extra[sub_index][1] == level:
                         if character_level_extra[sub_index][2] == None:
-                            if index > 0 and character_level_extra[index - 1][2] != '|' and character_level_extra[index - 1][0] != '|':
-                                print('Removing:', c_l_e, character_level_extra[sub_index], index, sub_index)
+                            if index > 0 and character_level_extra[index - 1][2] != OR and character_level_extra[index - 1][0] != OR:
+                                # print('Removing:', c_l_e, character_level_extra[sub_index], index, sub_index)
                                 found = True
                                 character_level_extra.pop(sub_index)
                                 character_level_extra.pop(index)
@@ -332,7 +340,7 @@ def fillEmptyBrackets(character_level_extra):
         level = c_l_e[1]
         if character == '(':
             if index + 1 < len(character_level_extra) and character_level_extra[index + 1][0] == ')' and level == character_level_extra[index + 1][1]:
-                character_level_extra.insert(index + 1, ('ε', level + 1, None))
+                character_level_extra.insert(index + 1, (EPSILON, level + 1, None))
     return character_level_extra
 
 def fillEmptyOrsRight(character_level_extra):
@@ -343,19 +351,13 @@ def fillEmptyOrsRight(character_level_extra):
         extra = c_l_e[2]
         if extra is not None:
             if len(extra) == 1:
-                if extra == '|':
+                if extra == OR:
                     if index == len(character_level_extra) - 1 or character_level_extra[index + 1][0] == ')':
                         character_level_extra.insert(index + 1, (EPSILON, level, None))
-            elif extra[-1] == '|':
+            elif extra[-1] == OR:
                 if index == len(character_level_extra) - 1 or character_level_extra[index + 1][0] == ')':
                         character_level_extra.insert(index + 1, (EPSILON, level, None))
     return character_level_extra
-
-ALL_LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-ALL_NUMBERS = "1234567890"
-ALL_SPECIAL = " ~[{]}!@#-_+=$%^&*()?><"
-
-ALL_CHARACTERS = ALL_LETTERS+ALL_NUMBERS+ALL_SPECIAL
 
 # State: (name, isTerminatingState, [(input, State)]
 states = [('S0', False, [])]
@@ -445,12 +447,12 @@ def createStates(character_level_extra, state_index = 1, previous_state_index = 
                     current_state2 = states[c2_index]
                     # print(previous_state, current_state1, current_state2, next_state)
                     extra = current_extra
-                    if extra is not None and iterator + 1 < len(character_level_extra) and character_level_extra[iterator + 1][0] == '|':
-                        current_extra = '|'
+                    if extra is not None and iterator + 1 < len(character_level_extra) and character_level_extra[iterator + 1][0] == OR:
+                        current_extra = OR
                         skipper += 1
                     break
                     
-        elif character == '|' or character == ']' or character == ')':
+        elif character == OR or character == ']' or character == ')':
             pass
         else:
             if character == '\\':
@@ -490,19 +492,19 @@ def createStates(character_level_extra, state_index = 1, previous_state_index = 
             current_state1[2].append((character, current_state2[0]))
             current_state2[2].append((EPSILON, next_state[0]))
             
-        if extra == '*':
+        if extra == STAR:
             current_state2[2].append((EPSILON, current_state1[0]))
             current_state1[2].append((EPSILON, next_state[0]))
-        elif extra == '+':
+        elif extra == PLUS:
             current_state2[2].append((EPSILON, current_state1[0]))
-        elif extra == '?':
+        elif extra == Q_MARK:
             current_state1[2].append((EPSILON, next_state[0]))
         
         if character == '(':
             extra = current_extra
             # print('Here extra character', character, current_extra)
 
-        if extra != '|' and character != '|' and character != '[' and state_indexer < len(character_level_extra) - 1 and character_level_extra[state_indexer + 1][0] != '|':
+        if extra != OR and character != OR and character != '[' and state_indexer < len(character_level_extra) - 1 and character_level_extra[state_indexer + 1][0] != OR:
             # print('Proceeding Here', c_l_e, character_level_extra[state_indexer + 1], previous_state_index, next_state_index)
             previous_state_index = next_state_index
             or_flag = True
@@ -570,18 +572,25 @@ def drawNfa():
     picFile = "DFA"
     nfa_graph.render(picFile, view = True, format = 'png', overwrite_source = True)
 
+
 input_regex = input("\nEnter regular expression: ")
+
 if validateRegex(input_regex):
     print('\nValid\n')
+
     lexBrackets(input_regex)
+
     character_level_extra = fillEmptyOrsRight(character_level_extra)
     character_level_extra = removeUnnessecaryBrackets(character_level_extra)
     character_level_extra = fillEmptyBrackets(character_level_extra)
     print(character_level_extra, '\n')
+
     createStates(character_level_extra)
     print(states, '\n')
+
     writeNfa(states)
     drawNfa()
+
     print(input_regex + '\n')   
 else:
     print('Invalid')

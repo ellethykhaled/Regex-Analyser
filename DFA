@@ -34,6 +34,12 @@ digraph {
 	S15
 	node [shape=circle]
 	S16
+	node [shape=circle]
+	S17
+	node [shape=circle]
+	S18
+	node [shape=circle]
+	S19
 	S0 -> S3 [label="ε"]
 	S0 -> S5 [label="ε"]
 	S1 -> S8 [label="ε"]
@@ -43,14 +49,18 @@ digraph {
 	S4 -> S2 [label="ε"]
 	S5 -> S6 [label="ε"]
 	S6 -> S2 [label="ε"]
-	S7 -> S13 [label="ε"]
-	S7 -> S15 [label="ε"]
+	S7 -> S14 [label="ε"]
+	S7 -> S16 [label="ε"]
+	S7 -> S18 [label="ε"]
 	S8 -> S9 [label="ε"]
 	S9 -> S7 [label="ε"]
 	S10 -> S11 [label="ε"]
 	S11 -> S7 [label="ε"]
-	S13 -> S14 [label="ε"]
-	S14 -> S12 [label="ε"]
-	S15 -> S16 [label="ε"]
-	S16 -> S12 [label="ε"]
+	S13 -> S12 [label="ε"]
+	S14 -> S15 [label="ε"]
+	S15 -> S13 [label="ε"]
+	S16 -> S17 [label="ε"]
+	S17 -> S13 [label="ε"]
+	S18 -> S19 [label="ε"]
+	S19 -> S12 [label="ε"]
 }
