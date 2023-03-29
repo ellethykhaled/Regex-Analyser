@@ -14,7 +14,7 @@
    },
    "S2": {
       "isTerminatingState": false,
-      "1": [
+      "a": [
          "S3"
       ]
    },
@@ -32,25 +32,26 @@
    },
    "S5": {
       "isTerminatingState": false,
-      "2": [
+      "b": [
          "S6"
+      ],
+      "\u03b5": [
+         "S4"
       ]
    },
    "S6": {
       "isTerminatingState": false,
       "\u03b5": [
-         "S4"
+         "S4",
+         "S5"
       ]
    },
    "S7": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S11"
-      ]
+      "isTerminatingState": true
    },
    "S8": {
       "isTerminatingState": false,
-      "3": [
+      "c": [
          "S9"
       ]
    },
@@ -58,39 +59,6 @@
       "isTerminatingState": false,
       "\u03b5": [
          "S7"
-      ]
-   },
-   "S10": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S14"
-      ]
-   },
-   "S11": {
-      "isTerminatingState": false,
-      "4": [
-         "S12"
-      ]
-   },
-   "S12": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S10"
-      ]
-   },
-   "S13": {
-      "isTerminatingState": true
-   },
-   "S14": {
-      "isTerminatingState": false,
-      "5": [
-         "S15"
-      ]
-   },
-   "S15": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S13"
       ]
    }
 }

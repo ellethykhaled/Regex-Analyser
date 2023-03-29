@@ -573,9 +573,8 @@ def drawNfa():
     nfa_graph.render(picFile, view = True, format = 'png', overwrite_source = True)
     os.remove("NFA")
 
-input_regex = input("\nEnter regular expression: ")
-
 def nfaFlow():
+    input_regex = input("\nEnter regular expression: ")
     if validateRegex(input_regex):
         print('\nValid\n')
 
@@ -597,5 +596,3 @@ def nfaFlow():
     else:
         print('Invalid')
         return False
-    
-nfaFlow()
