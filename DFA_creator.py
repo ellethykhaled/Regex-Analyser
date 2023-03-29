@@ -3,7 +3,7 @@ from graphviz import Digraph
 
 EPSILON = "ε" #ε
 
-def createNfaStates():
+def getNfaStates():
     with open('NFA.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
 
@@ -23,47 +23,51 @@ def createNfaStates():
 
 # Epsilon Closure here is not correct
 def createDfaStates(nfa_states):
-    while True:
-        found_epsilon = False
-        for state in nfa_states:
-            # print(state)
-            to_be_deleted = None
-            deleter = None
-            for input_next in nfa_states[state][1]:
-                if input_next[0] == EPSILON:
-                    # print('Extending', nfa_states[input_next[1]][1])
-                    nfa_states[state][1].extend(nfa_states[input_next[1]][1])
-                    nfa_states[state] = (nfa_states[state][0], list(dict.fromkeys(nfa_states[state][1])))
+    print(nfa_states)
+    possible_dfa_states = {}
 
-                    to_be_deleted = input_next[1]
-                    deleter = state
-                    # print('Removing', input_next)
-                    nfa_states[state][1].remove(input_next)
+    for state in nfa_states:
+        current_state_to_be = [state]
+        index = -1
+        while index < len(nfa_states) - 1:
+            index += 1
+            for current_state in current_state_to_be:
+                for input_next in nfa_states[current_state][1]:
+                    if input_next[0] == EPSILON and input_next[1] not in current_state_to_be:
+                        current_state_to_be.append(input_next[1])
 
-                    found_epsilon = True
-                    break
-            if found_epsilon == True:
+        current_state_to_be.sort()
+        possible_dfa_states[state] = current_state_to_be
+
+    start_states = ['S0']
+    previous_input = {}
+    for state in nfa_states:
+        for input_next in nfa_states[state][1]:
+            if input_next[0] != EPSILON and input_next[1] not in start_states:
+                start_states.append(input_next[1])
+                previous_input[input_next[1]] = (state, input_next[0])
+
+    to_be_deleted = []
+    dfa_states = {}
+    for state in possible_dfa_states:
+        if state not in start_states:
+            to_be_deleted.append(state)
+        else:
+            dfa_states[state] = False
+    for state in to_be_deleted:
+        del possible_dfa_states[state]
+    
+    # print(possible_dfa_states, "\nPrevious-input", previous_input,'\n')
+    # print(start_states,"\n")
+
+    for state in previous_input:
+        is_terminating = False
+        for sub_state in possible_dfa_states[state]:
+            if nfa_states[sub_state][0] == True:
+                is_terminating = True
                 break
-        if found_epsilon == False:
-            break
-
-        # print('Before deletion', nfa_states, '\nDeleter:', deleter, 'Deleted:', to_be_deleted)
-
-        deleted_is_terminating = nfa_states[to_be_deleted][0]
-        nfa_states[deleter] = (nfa_states[deleter][0] or deleted_is_terminating, nfa_states[deleter][1])
-
-        for state in nfa_states:
-            new_input_next = []
-            for input_next in nfa_states[state][1]:
-                if input_next[1] == to_be_deleted:
-                    input_next = (input_next[0], deleter)
-                new_input_next.append(input_next)
-            nfa_states[state] = (nfa_states[state][0], new_input_next)
-
-        del nfa_states[to_be_deleted]
-        to_be_deleted = None
-        deleter = None
-        # print('\nAfter deletion', nfa_states, '\n\n')
+        dfa_states[state] = is_terminating
+    print(dfa_states)
     return nfa_states
 
 def drawDfa(dfa_states, view_graph):
@@ -90,8 +94,8 @@ def drawDfa(dfa_states, view_graph):
     os.remove("DFA")
 
 def dfaFlow(view_graph = False):
-    nfa_states = createNfaStates()
+    nfa_states = getNfaStates()
     dfa_states = createDfaStates(nfa_states)
-    print(dfa_states)
+    # print(dfa_states)
     drawDfa(dfa_states, view_graph)
     return dfa_states
