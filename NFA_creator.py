@@ -1,3 +1,4 @@
+import os
 import json
 from graphviz import Digraph
 
@@ -569,9 +570,9 @@ def drawNfa():
             for edge in data[state][edges]:
                 nfa_graph.edge(state, edge, edges)
 
-    picFile = "DFA"
+    picFile = "NFA"
     nfa_graph.render(picFile, view = True, format = 'png', overwrite_source = True)
-
+    os.remove("NFA")
 
 input_regex = input("\nEnter regular expression: ")
 
