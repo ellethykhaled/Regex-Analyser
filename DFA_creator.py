@@ -38,7 +38,7 @@ def createDfaStates(nfa_states):
         possible_dfa_states[state] = current_state_to_be
 
     start_states = ['S0']
-    previous_input = {}
+    previous_input = {'S0': None}
     for state in nfa_states:
         for input_next in nfa_states[state][1]:
             if input_next[0] != EPSILON and input_next[1] not in start_states:
@@ -62,6 +62,8 @@ def createDfaStates(nfa_states):
                 is_terminating = True
                 break
         dfa_states[state] = (is_terminating, dfa_states[state][1])
+        if previous_input[state] is None:
+            continue
         for mother_state in dfa_states:
             if previous_input[state][0] in possible_dfa_states[mother_state]:
                 # print('Adding', (previous_input[state][1], state), 'to', mother_state)
