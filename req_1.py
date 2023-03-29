@@ -164,7 +164,7 @@ def bracketContentsValidation(regex):
 
 def validateRegex(regex):
     if len(regex) == 0:
-        return False
+        return True
     if not firstElementValidation(regex):
         return False
     if not regexBracketValidation(regex):
@@ -266,10 +266,13 @@ def lexBrackets(regex, level = 0):
                         last_ignorer = j
                         break
         elif c == '?' or c == '*' or c == '+' or c == '|':
-            if c == '|' and i > 0:
-                previous = regex[i - 1]
-                if previous == '?' or previous == '*' or previous == '+':
-                    character_level_extra.append((c, level, None))
+            if c == '|':
+                if i > 0:
+                    previous = regex[i - 1]
+                    if previous == '?' or previous == '*' or previous == '+':
+                        character_level_extra.append((c, level, None))
+                else:
+                    character_level_extra.append((EPSILON, level, '|'))
             continue
         else:
             if c == '\\':
@@ -298,6 +301,7 @@ def lexBrackets(regex, level = 0):
 
 
 def removeUnnessecaryBrackets(character_level_extra):
+    print('Before removing', character_level_extra)
     while True:
         found = False
         index = -1
@@ -318,6 +322,33 @@ def removeUnnessecaryBrackets(character_level_extra):
 
         if not found:
             break
+    return character_level_extra
+
+def fillEmptyBrackets(character_level_extra):
+    index = -1
+    for c_l_e in character_level_extra:
+        index += 1
+        character = c_l_e[0]
+        level = c_l_e[1]
+        if character == '(':
+            if index + 1 < len(character_level_extra) and character_level_extra[index + 1][0] == ')' and level == character_level_extra[index + 1][1]:
+                character_level_extra.insert(index + 1, ('ε', level + 1, None))
+    return character_level_extra
+
+def fillEmptyOrsRight(character_level_extra):
+    index = -1
+    for c_l_e in character_level_extra:
+        index += 1
+        level = c_l_e[1]
+        extra = c_l_e[2]
+        if extra is not None:
+            if len(extra) == 1:
+                if extra == '|':
+                    if index == len(character_level_extra) - 1 or character_level_extra[index + 1][0] == ')':
+                        character_level_extra.insert(index + 1, (EPSILON, level, None))
+            elif extra[-1] == '|':
+                if index == len(character_level_extra) - 1 or character_level_extra[index + 1][0] == ')':
+                        character_level_extra.insert(index + 1, (EPSILON, level, None))
     return character_level_extra
 
 ALL_LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -423,6 +454,7 @@ def createStates(character_level_extra, state_index = 1, previous_state_index = 
             pass
         else:
             if character == '\\':
+                skipper = 1
                 if len(extra) == 1:
                     character += extra
                     extra = None
@@ -430,15 +462,15 @@ def createStates(character_level_extra, state_index = 1, previous_state_index = 
                     character += extra[0]
                     extra = extra[1]
             if character == '.':
-                character = ALL_CHARACTERS
+                character = "CHAR"
             elif character == '\\w':
-                character = ALL_LETTERS+ALL_NUMBERS
+                character = "ALPHANUM"
             elif character == '\\W':
-                character = ALL_SPECIAL
+                character = "SPECIAL"
             elif character == '\\d':
-                character = ALL_NUMBERS
+                character = "DIGIT"
             elif character == '\\D':
-                character = ALL_LETTERS+ALL_SPECIAL
+                character = "NON-DIGIT"
             # Create the new current states
             new_state_name = 'S'+str(state_index)
             new_state = (new_state_name, False, [])
@@ -482,6 +514,8 @@ def createStates(character_level_extra, state_index = 1, previous_state_index = 
             absolute_previous_updated = True
 
     if base_call and state_indexer == len(character_level_extra) - 1:
+        if next_state_index is None:
+            next_state_index = 0
         t_state = states[next_state_index]
         states[next_state_index] = (t_state[0], True, t_state[2])
         print('Terminating State:', states[next_state_index],'\n')
@@ -536,17 +570,18 @@ def drawNfa():
     picFile = "DFA"
     nfa_graph.render(picFile, view = True, format = 'png', overwrite_source = True)
 
-
 input_regex = input("\nEnter regular expression: ")
 if validateRegex(input_regex):
     print('\nValid\n')
     lexBrackets(input_regex)
+    character_level_extra = fillEmptyOrsRight(character_level_extra)
     character_level_extra = removeUnnessecaryBrackets(character_level_extra)
+    character_level_extra = fillEmptyBrackets(character_level_extra)
     print(character_level_extra, '\n')
     createStates(character_level_extra)
     print(states, '\n')
     writeNfa(states)
     drawNfa()
-                
+    print(input_regex + '\n')   
 else:
     print('Invalid')
