@@ -21,9 +21,7 @@ def getNfaStates():
 
     return states
 
-# Epsilon Closure here is not correct
 def createDfaStates(nfa_states):
-    print(nfa_states)
     possible_dfa_states = {}
 
     for state in nfa_states:
@@ -53,22 +51,23 @@ def createDfaStates(nfa_states):
         if state not in start_states:
             to_be_deleted.append(state)
         else:
-            dfa_states[state] = False
+            dfa_states[state] = (False, [])
     for state in to_be_deleted:
         del possible_dfa_states[state]
     
-    # print(possible_dfa_states, "\nPrevious-input", previous_input,'\n')
-    # print(start_states,"\n")
-
     for state in previous_input:
         is_terminating = False
         for sub_state in possible_dfa_states[state]:
             if nfa_states[sub_state][0] == True:
                 is_terminating = True
                 break
-        dfa_states[state] = is_terminating
-    print(dfa_states)
-    return nfa_states
+        dfa_states[state] = (is_terminating, dfa_states[state][1])
+        for mother_state in dfa_states:
+            if previous_input[state][0] in possible_dfa_states[mother_state]:
+                # print('Adding', (previous_input[state][1], state), 'to', mother_state)
+                dfa_states[mother_state][1].append((previous_input[state][1], state))
+
+    return dfa_states
 
 def drawDfa(dfa_states, view_graph):
     dfa_graph = Digraph(graph_attr={'rankdir': 'LR'})
@@ -96,6 +95,6 @@ def drawDfa(dfa_states, view_graph):
 def dfaFlow(view_graph = False):
     nfa_states = getNfaStates()
     dfa_states = createDfaStates(nfa_states)
-    # print(dfa_states)
+    print(dfa_states)
     drawDfa(dfa_states, view_graph)
     return dfa_states
