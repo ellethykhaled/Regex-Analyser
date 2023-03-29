@@ -185,8 +185,6 @@ def validateRegex(regex):
         return False
     return True
 
-character_level_extra = []
-
 def lexSquareBrackets(regex, level):
     is_allowed = True
     allowed_characters = []
@@ -241,9 +239,9 @@ def lexSquareBrackets(regex, level):
     
     # print(allowed_all)
     
-    character_level_extra.append((allowed_all, level, is_allowed))
+    return (allowed_all, level, is_allowed)
 
-def lexBrackets(regex, level = 0):
+def lexBrackets(regex, level = 0, character_level_extra = []):
     i = -1
     last_ignorer = 0
     indices = []
@@ -259,7 +257,7 @@ def lexBrackets(regex, level = 0):
                 if regex[j] == ']':
                     brackets_indices.pop()
                     if len(brackets_indices) == 0:
-                        lexSquareBrackets(regex[i+1:j], level + 1)
+                        character_level_extra.append(lexSquareBrackets(regex[i+1:j], level + 1))
                         last_ignorer = j
                         break
         elif c == '(':
@@ -308,6 +306,7 @@ def lexBrackets(regex, level = 0):
         characters.append(regex[j])
     # print(regex, characters)
     # print(regex, indices)
+    return character_level_extra
 
 
 def removeUnnessecaryBrackets(character_level_extra):
@@ -576,22 +575,27 @@ def drawNfa():
 
 input_regex = input("\nEnter regular expression: ")
 
-if validateRegex(input_regex):
-    print('\nValid\n')
+def nfaFlow():
+    if validateRegex(input_regex):
+        print('\nValid\n')
 
-    lexBrackets(input_regex)
+        character_level_extra = lexBrackets(input_regex)
 
-    character_level_extra = fillEmptyOrsRight(character_level_extra)
-    character_level_extra = removeUnnessecaryBrackets(character_level_extra)
-    character_level_extra = fillEmptyBrackets(character_level_extra)
-    print(character_level_extra, '\n')
+        character_level_extra = fillEmptyOrsRight(character_level_extra)
+        character_level_extra = removeUnnessecaryBrackets(character_level_extra)
+        character_level_extra = fillEmptyBrackets(character_level_extra)
+        print(character_level_extra, '\n')
 
-    createStates(character_level_extra)
-    print(states, '\n')
+        createStates(character_level_extra)
+        print(states, '\n')
 
-    writeNfa(states)
-    drawNfa()
+        writeNfa(states)
+        drawNfa()
 
-    print(input_regex + '\n')   
-else:
-    print('Invalid')
+        print(input_regex + '\n')
+        return True   
+    else:
+        print('Invalid')
+        return False
+    
+nfaFlow()

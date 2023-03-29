@@ -3,57 +3,54 @@
    "S0": {
       "isTerminatingState": false,
       "\u03b5": [
-         "S3",
-         "S5"
+         "S2"
       ]
    },
    "S1": {
       "isTerminatingState": false,
       "\u03b5": [
-         "S8",
-         "S10"
+         "S5"
       ]
    },
    "S2": {
       "isTerminatingState": false,
-      "\u03b5": [
-         "S1"
+      "1": [
+         "S3"
       ]
    },
    "S3": {
       "isTerminatingState": false,
       "\u03b5": [
-         "S4"
+         "S1"
       ]
    },
    "S4": {
       "isTerminatingState": false,
       "\u03b5": [
-         "S2"
+         "S8"
       ]
    },
    "S5": {
       "isTerminatingState": false,
-      "\u03b5": [
+      "2": [
          "S6"
       ]
    },
    "S6": {
       "isTerminatingState": false,
       "\u03b5": [
-         "S2"
+         "S4"
       ]
    },
    "S7": {
       "isTerminatingState": false,
       "\u03b5": [
-         "S13",
-         "S15"
+         "S11"
       ]
    },
    "S8": {
       "isTerminatingState": false,
-      "\u03b5": [
+      "3": [
          "S9"
       ]
    },
@@ -66,71 +63,34 @@
    "S10": {
       "isTerminatingState": false,
       "\u03b5": [
-         "S11"
+         "S14"
       ]
    },
    "S11": {
       "isTerminatingState": false,
-      "\u03b5": [
-         "S7"
+      "4": [
+         "S12"
       ]
    },
    "S12": {
       "isTerminatingState": false,
       "\u03b5": [
-         "S18",
-         "S20"
+         "S10"
       ]
    },
    "S13": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S14"
-      ]
+      "isTerminatingState": true
    },
    "S14": {
       "isTerminatingState": false,
-      "\u03b5": [
-         "S12"
+      "5": [
+         "S15"
       ]
    },
    "S15": {
       "isTerminatingState": false,
       "\u03b5": [
-         "S16"
-      ]
-   },
-   "S16": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S12"
-      ]
-   },
-   "S17": {
-      "isTerminatingState": true
-   },
-   "S18": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S19"
-      ]
-   },
-   "S19": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S17"
-      ]
-   },
-   "S20": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S21"
-      ]
-   },
-   "S21": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S17"
+         "S13"
       ]
    }
 }
