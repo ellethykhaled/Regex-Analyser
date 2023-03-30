@@ -570,23 +570,23 @@ def drawNfa(view_graph):
 def nfaFlow(view_graph = False):
     input_regex = input("\nEnter regular expression: ")
     if validateRegex(input_regex):
-        print('\nValid\n')
+        print('\nValid regex\n')
 
         character_level_extra = lexBrackets(input_regex)
 
         character_level_extra = fillEmptyOrsRight(character_level_extra)
         character_level_extra = removeUnnessecaryBrackets(character_level_extra)
         character_level_extra = fillEmptyBrackets(character_level_extra)
-        print(character_level_extra, '\n')
+        print('Characters to parse:', character_level_extra, '\n')
 
         createStates(character_level_extra)
-        print(states, '\n')
+        print('NFA states: ',states, '\n')
 
         writeNfa(states)
         drawNfa(view_graph)
 
-        print(input_regex + '\n')
+        print('Input regex: ', input_regex + '\n')
         return True   
     else:
-        print('Invalid')
+        print('Invalid regex')
         return False

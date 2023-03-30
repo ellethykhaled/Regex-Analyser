@@ -188,8 +188,9 @@ def drawDfa(dfa_states, view_graph = False, another_name = 'DFA'):
 def dfaFlow(view_graph = False):
     nfa_states = getNfaStates()
     epsilonless_nfa_states = epsilonlessNfaStates(nfa_states)
-    print(epsilonless_nfa_states)
+    print('Epsilonless states:', epsilonless_nfa_states)
     drawDfa(epsilonless_nfa_states, another_name = 'Epsilonless_NFA')
     dfa_states = createDfaStates(epsilonless_nfa_states)
+    print('\nDfa states:', dfa_states)
     drawDfa(dfa_states, view_graph)
     return dfa_states

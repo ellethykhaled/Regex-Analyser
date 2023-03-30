@@ -6,8 +6,8 @@ def minimizeDfa(dfa_states):
     return dfa_states
 
 def allFlow():
-    nfaFlow(False)
-    dfa_states = dfaFlow(True)
-    minimized_dfa = minimizeDfa(dfa_states)
+    if nfaFlow(False) == True:
+        dfa_states = dfaFlow(True)
+        minimized_dfa = minimizeDfa(dfa_states)
 
 allFlow()
