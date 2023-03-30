@@ -155,7 +155,7 @@ def createDfaStates(nfa_states):
     new_names = []
     for input_next in dfa_states['S0'][1]:
         for state_name in set_of_new_states:
-            if set_of_new_states[state_name] == current_state_to_be:
+            if set_of_new_states[state_name] == input_next[1]:
                 new_names.append((input_next[0], state_name))
                 break
     dfa_states['S0'] = (dfa_states['S0'][0], new_names)
