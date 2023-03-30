@@ -21,9 +21,9 @@ def getNfaStates():
 
     return states
 
-# Again, not always working algorith; it only works if every input character is unique
-def createDfaStates(nfa_states):
-    possible_dfa_states = {}
+# Again, not always working algorith; it only works if every input character is unique, so a new function is added
+def epsilonlessNfaStates(nfa_states):
+    possible_epsiloness_states = {}
 
     for state in nfa_states:
         current_state_to_be = [state]
@@ -36,7 +36,7 @@ def createDfaStates(nfa_states):
                         current_state_to_be.append(input_next[1])
 
         current_state_to_be.sort()
-        possible_dfa_states[state] = current_state_to_be
+        possible_epsiloness_states[state] = current_state_to_be
 
     start_states = ['S0']
     previous_input = {'S0': None}
@@ -47,32 +47,121 @@ def createDfaStates(nfa_states):
                 previous_input[input_next[1]] = (state, input_next[0])
 
     to_be_deleted = []
-    dfa_states = {}
-    for state in possible_dfa_states:
+    epsilonless_states = {}
+    for state in possible_epsiloness_states:
         if state not in start_states:
             to_be_deleted.append(state)
         else:
-            dfa_states[state] = (False, [])
+            epsilonless_states[state] = (False, [])
     for state in to_be_deleted:
-        del possible_dfa_states[state]
+        del possible_epsiloness_states[state]
     
     for state in previous_input:
         is_terminating = False
-        for sub_state in possible_dfa_states[state]:
+        for sub_state in possible_epsiloness_states[state]:
             if nfa_states[sub_state][0] == True:
                 is_terminating = True
                 break
-        dfa_states[state] = (is_terminating, dfa_states[state][1])
+        epsilonless_states[state] = (is_terminating, epsilonless_states[state][1])
         if previous_input[state] is None:
             continue
-        for mother_state in dfa_states:
-            if previous_input[state][0] in possible_dfa_states[mother_state]:
+        for mother_state in epsilonless_states:
+            if previous_input[state][0] in possible_epsiloness_states[mother_state]:
                 # print('Adding', (previous_input[state][1], state), 'to', mother_state)
-                dfa_states[mother_state][1].append((previous_input[state][1], state))
+                epsilonless_states[mother_state][1].append((previous_input[state][1], state))
+
+    return epsilonless_states
+
+def createDfaStates(nfa_states):
+    is_already_dfa = True
+    for state in nfa_states:
+        possible_inputs = []
+        for input_next in nfa_states[state][1]:
+            if input_next in possible_inputs:
+                is_already_dfa = False
+                break
+        if not is_already_dfa:
+            break
+    if is_already_dfa:
+        print('\nNFA is already a DFA\n')
+        return nfa_states
+    # print('\nNFA states:', nfa_states, '\n')
+
+    possible_inputs = set()
+    for state in nfa_states:
+        for input_next in nfa_states[state][1]:
+            possible_inputs.add(input_next[0])
+    # print('Possible inputs:', possible_inputs, '\n')
+
+    explored_sets_of_states = []
+
+    dfa_states = {'S0': (nfa_states['S0'][0], [])}
+
+    for possible_input in possible_inputs:
+        current_state_to_be = ['S0']
+        index = -1
+        while index < len(nfa_states) - 1:
+            index += 1
+            for current_state in current_state_to_be:
+                for input_next in nfa_states[current_state][1]:
+                    if input_next[0] == possible_input and input_next[1] not in current_state_to_be:
+                        current_state_to_be.append(input_next[1])
+        current_state_to_be.sort()
+        current_state_to_be.remove('S0')
+        if current_state_to_be not in explored_sets_of_states:
+            explored_sets_of_states.append(current_state_to_be)
+        dfa_states['S0'][1].append((possible_input, current_state_to_be))
+
+    set_of_new_states = {}
+
+    explored_state_index = 0
+    for states in explored_sets_of_states:
+        explored_state_index += 1
+        set_of_new_states['S'+str(explored_state_index)] = states
+
+    state_index = 0
+    for set_of_states in explored_sets_of_states:
+        state_index += 1
+        is_terminating = False
+        for state in set_of_states:
+            if nfa_states[state][0] == True:
+                is_terminating = True
+        
+        list_of_transitions = []
+        for possible_input in possible_inputs:
+            current_state_to_be = []
+            states_to_loop_on = []
+            states_to_loop_on.extend(set_of_states)
+
+            for current_state in states_to_loop_on:
+                for input_next in nfa_states[current_state][1]:
+                    if input_next[0] == possible_input and input_next[1] not in current_state_to_be:
+                        current_state_to_be.append(input_next[1])
+
+            current_state_to_be.sort()
+            if current_state_to_be not in explored_sets_of_states:
+                explored_state_index += 1
+                explored_sets_of_states.append(current_state_to_be)
+                set_of_new_states['S'+str(explored_state_index)] = current_state_to_be
+            if len(current_state_to_be) > 0:
+                for state_name in set_of_new_states:
+                    if set_of_new_states[state_name] == current_state_to_be:
+                        list_of_transitions.append((possible_input, state_name))
+                        break
+        dfa_states['S'+str(state_index)] = (is_terminating, list_of_transitions)
+
+    # Renaming states of start state:
+    new_names = []
+    for input_next in dfa_states['S0'][1]:
+        for state_name in set_of_new_states:
+            if set_of_new_states[state_name] == current_state_to_be:
+                new_names.append((input_next[0], state_name))
+                break
+    dfa_states['S0'] = (dfa_states['S0'][0], new_names)
 
     return dfa_states
 
-def drawDfa(dfa_states, view_graph):
+def drawDfa(dfa_states, view_graph = False, another_name = 'DFA'):
     dfa_graph = Digraph(graph_attr={'rankdir': 'LR'})
 
     index = 0
@@ -91,13 +180,15 @@ def drawDfa(dfa_states, view_graph):
         for input_next in dfa_states[state][1]:
             dfa_graph.edge(state, input_next[1], input_next[0])
 
-    picFile = "DFA"
+    picFile = another_name
     dfa_graph.render(picFile, view = view_graph, format = 'png', overwrite_source = True)
-    os.remove("DFA")
+    os.remove(another_name)
 
 def dfaFlow(view_graph = False):
     nfa_states = getNfaStates()
-    dfa_states = createDfaStates(nfa_states)
-    print(dfa_states)
+    epsilonless_nfa_states = epsilonlessNfaStates(nfa_states)
+    print(epsilonless_nfa_states)
+    drawDfa(epsilonless_nfa_states, another_name = 'Epsilonless_NFA')
+    dfa_states = createDfaStates(epsilonless_nfa_states)
     drawDfa(dfa_states, view_graph)
     return dfa_states
