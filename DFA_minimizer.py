@@ -115,10 +115,8 @@ def writeMinimizedDfa(dfa_states):
             sub_dict = {}
             sub_dict["isTerminatingState"] = dfa_states[state][0]
             for input_next in dfa_states[state][1]:
-                if input_next[0] not in sub_dict:
-                    sub_dict[input_next[0]] = []
-                sub_dict[input_next[0]].append(input_next[1])
-            dict_to_write[state[0]] = sub_dict
+                sub_dict[input_next[0]] = input_next[1]
+            dict_to_write[state] = sub_dict
         json_string = json.dumps(dict_to_write, indent=3)
         f.write(json_string)
 
@@ -126,6 +124,6 @@ def allFlow():
     if nfaFlow(False) == True:
         dfa_states = dfaFlow(False)
         minimized_dfa = minimizeDfa(dfa_states)
-        drawDfa(minimized_dfa,view_graph = True, another_name='Minimized_DFA')
-
+        drawDfa(minimized_dfa, view_graph = True, another_name='Minimized_DFA')
+        writeMinimizedDfa(minimized_dfa)
 allFlow()
