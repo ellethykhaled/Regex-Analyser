@@ -53,7 +53,7 @@ def minimizeDfa(dfa_states):
                                 if next_state in g:
                                     elements_behavior.append(sub_index)
                                     break
-                    print('\nElements behaviour:', elements_behavior, 'for input', possible_input)
+                    # print('\nElements behaviour:', elements_behavior, 'for input', possible_input)
 
                     frequency_dict = {}
                     for behavior in elements_behavior:
@@ -71,14 +71,14 @@ def minimizeDfa(dfa_states):
                             if behavior == out_lier:
                                 out_lier = group[sub_index]
                                 break
-                        print('\nElement:', out_lier, 'does not belong to group', group)
+                        # print('\nElement:', out_lier, 'does not belong to group', group)
                         breaker = False
                         break
             if not breaker:
                 group.remove(out_lier)
                 copy_to_process[index] = group
                 copy_to_process.append([out_lier])
-                print('\nNew groups:', copy_to_process)
+                # print('\nNew groups:', copy_to_process)
                 break
 
         if breaker:
@@ -86,14 +86,29 @@ def minimizeDfa(dfa_states):
 
         groups_to_process = copy_to_process
         
-    print(groups_to_process)
+    print('\nFinal groups:', groups_to_process)
 
-    print()
+    for group in groups_to_process:
+        if len(group) > 1:
+            if 'S0' in group:
+                representative = 'S0'
+            else:
+                representative = group[0]
+            for state in dfa_states:
+                for input_next in dfa_states[state][1]:
+                    if input_next[1] in group:
+                        dfa_states[state] = (dfa_states[state][0], representative)
+            for element in group:
+                if element == representative:
+                    continue
+                del dfa_states[element]
+    print('\nMinimized Dfa:', dfa_states)
     return dfa_states
 
 def allFlow():
     if nfaFlow(False) == True:
         dfa_states = dfaFlow(True)
         minimized_dfa = minimizeDfa(dfa_states)
+        
 
 allFlow()
