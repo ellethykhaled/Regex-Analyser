@@ -1,6 +1,7 @@
+import os, json
 from graphviz import Digraph
 from NFA_creator import nfaFlow
-from DFA_creator import dfaFlow
+from DFA_creator import dfaFlow, drawDfa
 
 def minimizeDfa(dfa_states):
     possible_inputs = []
@@ -95,9 +96,11 @@ def minimizeDfa(dfa_states):
             else:
                 representative = group[0]
             for state in dfa_states:
+                index = -1
                 for input_next in dfa_states[state][1]:
+                    index += 1
                     if input_next[1] in group:
-                        dfa_states[state] = (dfa_states[state][0], representative)
+                        dfa_states[state][1][index] = (dfa_states[state][1][index][0], representative)
             for element in group:
                 if element == representative:
                     continue
@@ -105,10 +108,24 @@ def minimizeDfa(dfa_states):
     print('\nMinimized Dfa:', dfa_states)
     return dfa_states
 
+def writeMinimizedDfa(dfa_states):
+    with open('Minimized_DFA.json', 'w', encoding='utf-8') as f:
+        dict_to_write = {"startingState": "S0"}
+        for state in dfa_states:
+            sub_dict = {}
+            sub_dict["isTerminatingState"] = dfa_states[state][0]
+            for input_next in dfa_states[state][1]:
+                if input_next[0] not in sub_dict:
+                    sub_dict[input_next[0]] = []
+                sub_dict[input_next[0]].append(input_next[1])
+            dict_to_write[state[0]] = sub_dict
+        json_string = json.dumps(dict_to_write, indent=3)
+        f.write(json_string)
+
 def allFlow():
     if nfaFlow(False) == True:
-        dfa_states = dfaFlow(True)
+        dfa_states = dfaFlow(False)
         minimized_dfa = minimizeDfa(dfa_states)
-        
+        drawDfa(minimized_dfa,view_graph = True, another_name='Minimized_DFA')
 
 allFlow()
