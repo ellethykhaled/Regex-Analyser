@@ -21,6 +21,7 @@ def getNfaStates():
 
     return states
 
+# Again, not always working algorith; it only works if every input character is unique
 def createDfaStates(nfa_states):
     possible_dfa_states = {}
 
