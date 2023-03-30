@@ -77,9 +77,10 @@ def createDfaStates(nfa_states):
     for state in nfa_states:
         possible_inputs = []
         for input_next in nfa_states[state][1]:
-            if input_next in possible_inputs:
+            if input_next[0] in possible_inputs:
                 is_already_dfa = False
                 break
+            possible_inputs.append(input_next[0])
         if not is_already_dfa:
             break
     if is_already_dfa:
