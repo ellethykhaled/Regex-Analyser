@@ -2,22 +2,22 @@
    "startingState": "S0",
    "S0": {
       "isTerminatingState": false,
-      "a": "S1",
-      "b": "S0"
+      "b": "S0",
+      "a": "S2"
    },
-   "S1": {
+   "S2": {
       "isTerminatingState": false,
-      "a": "S1",
-      "b": "S3"
+      "b": "S3",
+      "a": "S2"
    },
    "S3": {
       "isTerminatingState": false,
-      "a": "S1",
-      "b": "S4"
+      "b": "S4",
+      "a": "S2"
    },
    "S4": {
       "isTerminatingState": true,
-      "a": "S1",
-      "b": "S0"
+      "b": "S0",
+      "a": "S2"
    }
 }

@@ -120,10 +120,7 @@ def writeMinimizedDfa(dfa_states):
         json_string = json.dumps(dict_to_write, indent=3)
         f.write(json_string)
 
-def allFlow():
-    if nfaFlow(False) == True:
-        dfa_states = dfaFlow(False)
-        minimized_dfa = minimizeDfa(dfa_states)
-        drawDfa(minimized_dfa, view_graph = True, another_name='Minimized_DFA')
-        writeMinimizedDfa(minimized_dfa)
-allFlow()
+def minimizedDfaFlow(dfa_states):
+    minimized_dfa = minimizeDfa(dfa_states)
+    drawDfa(minimized_dfa, another_name='Minimized_DFA')
+    writeMinimizedDfa(minimized_dfa)        
