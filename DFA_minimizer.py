@@ -29,6 +29,8 @@ def minimizeDfa(dfa_states):
     print('\nInitially non-accepting states:', accepting_states)
     print('\nInitially accepting states:', non_accepting_states)
 
+    anyTrap = False
+
     while True:
         breaker = True
 
@@ -54,6 +56,9 @@ def minimizeDfa(dfa_states):
                                 if next_state in g:
                                     elements_behavior.append(sub_index)
                                     break
+                        else:
+                            elements_behavior.append('X')
+                            anyTrap = True
                     # print('\nElements behaviour:', elements_behavior, 'for input', possible_input)
 
                     frequency_dict = {}

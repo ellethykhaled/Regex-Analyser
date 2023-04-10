@@ -359,12 +359,14 @@ def fillEmptyOrsRight(character_level_extra):
     return character_level_extra
 
 # State: (name, isTerminatingState, [(input, State)]
-states = [('S0', False, [])]
+global states
+states = []
    
 def createStates(character_level_extra, state_index = 1, previous_state_index = 0, next_state_index = None):
     base_call = False
     if next_state_index is None:
         base_call = True
+        states = [('S0', False, [])]
     else:
         absolute_next_index = next_state_index
         absolute_previous_index = previous_state_index
@@ -572,7 +574,7 @@ def nfaFlow(view_graph = False):
     if validateRegex(input_regex):
         print('\nValid regex\n')
 
-        character_level_extra = lexBrackets(input_regex)
+        character_level_extra = lexBrackets(input_regex, 0, [])
 
         character_level_extra = fillEmptyOrsRight(character_level_extra)
         character_level_extra = removeUnnessecaryBrackets(character_level_extra)
