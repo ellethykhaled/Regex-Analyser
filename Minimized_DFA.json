@@ -2,101 +2,35 @@
    "startingState": "S0",
    "S0": {
       "isTerminatingState": false,
-      "h": "S3"
+      "c": "S3"
    },
    "S3": {
       "isTerminatingState": false,
-      "t": "S6"
+      "o": "S6"
    },
    "S6": {
       "isTerminatingState": false,
-      "t": "S9"
+      "m": "S9",
+      "o": "S9"
    },
    "S9": {
       "isTerminatingState": false,
-      "p": "S12"
+      "r": "S14"
    },
-   "S12": {
+   "S14": {
       "isTerminatingState": false,
-      "s": "S15",
-      ":": "S18"
+      "g": "S17",
+      "n": "S17"
    },
-   "S15": {
+   "S17": {
       "isTerminatingState": false,
-      ":": "S18"
+      "e": "S22"
    },
-   "S18": {
+   "S22": {
       "isTerminatingState": false,
-      "/": "S21"
+      "t": "S25"
    },
-   "S21": {
-      "isTerminatingState": false,
-      "/": "S24"
-   },
-   "S24": {
-      "isTerminatingState": false,
-      "w": "S28",
-      "-, _, a-z, A-Z, 0-9": "S40"
-   },
-   "S28": {
-      "isTerminatingState": false,
-      "w": "S31"
-   },
-   "S31": {
-      "isTerminatingState": false,
-      "w": "S34"
-   },
-   "S34": {
-      "isTerminatingState": false,
-      ".": "S37"
-   },
-   "S37": {
-      "isTerminatingState": false,
-      "-, _, a-z, A-Z, 0-9": "S40"
-   },
-   "S40": {
-      "isTerminatingState": false,
-      ".": "S43"
-   },
-   "S43": {
-      "isTerminatingState": false,
-      "c": "S46"
-   },
-   "S46": {
-      "isTerminatingState": false,
-      "o": "S49"
-   },
-   "S49": {
-      "isTerminatingState": false,
-      "m": "S52",
-      "o": "S54"
-   },
-   "S52": {
-      "isTerminatingState": false,
-      "r": "S57"
-   },
-   "S54": {
-      "isTerminatingState": false,
-      "r": "S57"
-   },
-   "S57": {
-      "isTerminatingState": false,
-      "g": "S60",
-      "n": "S62"
-   },
-   "S60": {
-      "isTerminatingState": false,
-      "e": "S65"
-   },
-   "S62": {
-      "isTerminatingState": false,
-      "e": "S65"
-   },
-   "S65": {
-      "isTerminatingState": false,
-      "t": "S68"
-   },
-   "S68": {
+   "S25": {
       "isTerminatingState": true
    }
 }

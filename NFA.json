@@ -14,7 +14,7 @@
    },
    "S2": {
       "isTerminatingState": false,
-      "h": [
+      "c": [
          "S3"
       ]
    },
@@ -27,12 +27,13 @@
    "S4": {
       "isTerminatingState": false,
       "\u03b5": [
-         "S8"
+         "S8",
+         "S10"
       ]
    },
    "S5": {
       "isTerminatingState": false,
-      "t": [
+      "o": [
          "S6"
       ]
    },
@@ -45,12 +46,12 @@
    "S7": {
       "isTerminatingState": false,
       "\u03b5": [
-         "S11"
+         "S13"
       ]
    },
    "S8": {
       "isTerminatingState": false,
-      "t": [
+      "m": [
          "S9"
       ]
    },
@@ -62,359 +63,96 @@
    },
    "S10": {
       "isTerminatingState": false,
-      "\u03b5": [
-         "S14"
+      "o": [
+         "S11"
       ]
    },
    "S11": {
       "isTerminatingState": false,
-      "p": [
-         "S12"
+      "\u03b5": [
+         "S7"
       ]
    },
    "S12": {
       "isTerminatingState": false,
       "\u03b5": [
-         "S10"
+         "S16",
+         "S18"
       ]
    },
    "S13": {
       "isTerminatingState": false,
-      "\u03b5": [
-         "S17"
+      "r": [
+         "S14"
       ]
    },
    "S14": {
       "isTerminatingState": false,
-      "s": [
-         "S15"
-      ],
       "\u03b5": [
-         "S13"
+         "S12"
       ]
    },
    "S15": {
       "isTerminatingState": false,
       "\u03b5": [
-         "S13"
+         "S21"
       ]
    },
    "S16": {
       "isTerminatingState": false,
-      "\u03b5": [
-         "S20"
+      "g": [
+         "S17"
       ]
    },
    "S17": {
       "isTerminatingState": false,
-      ":": [
-         "S18"
+      "\u03b5": [
+         "S15"
       ]
    },
    "S18": {
       "isTerminatingState": false,
-      "\u03b5": [
-         "S16"
+      "n": [
+         "S19"
       ]
    },
    "S19": {
       "isTerminatingState": false,
       "\u03b5": [
-         "S23"
+         "S15"
       ]
    },
    "S20": {
       "isTerminatingState": false,
-      "/": [
-         "S21"
+      "\u03b5": [
+         "S24"
       ]
    },
    "S21": {
       "isTerminatingState": false,
-      "\u03b5": [
-         "S19"
+      "e": [
+         "S22"
       ]
    },
    "S22": {
       "isTerminatingState": false,
       "\u03b5": [
-         "S27",
-         "S25"
+         "S20"
       ]
    },
    "S23": {
-      "isTerminatingState": false,
-      "/": [
-         "S24"
-      ]
+      "isTerminatingState": true
    },
    "S24": {
       "isTerminatingState": false,
-      "\u03b5": [
-         "S22"
+      "t": [
+         "S25"
       ]
    },
    "S25": {
       "isTerminatingState": false,
       "\u03b5": [
-         "S39"
-      ]
-   },
-   "S26": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S30"
-      ]
-   },
-   "S27": {
-      "isTerminatingState": false,
-      "w": [
-         "S28"
-      ]
-   },
-   "S28": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S26"
-      ]
-   },
-   "S29": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S33"
-      ]
-   },
-   "S30": {
-      "isTerminatingState": false,
-      "w": [
-         "S31"
-      ]
-   },
-   "S31": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S29"
-      ]
-   },
-   "S32": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S36"
-      ]
-   },
-   "S33": {
-      "isTerminatingState": false,
-      "w": [
-         "S34"
-      ]
-   },
-   "S34": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S32"
-      ]
-   },
-   "S35": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S25"
-      ]
-   },
-   "S36": {
-      "isTerminatingState": false,
-      ".": [
-         "S37"
-      ]
-   },
-   "S37": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S35"
-      ]
-   },
-   "S38": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S42"
-      ]
-   },
-   "S39": {
-      "isTerminatingState": false,
-      "-, _, a-z, A-Z, 0-9": [
-         "S40"
-      ]
-   },
-   "S40": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S38"
-      ]
-   },
-   "S41": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S45"
-      ]
-   },
-   "S42": {
-      "isTerminatingState": false,
-      ".": [
-         "S43"
-      ]
-   },
-   "S43": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S41"
-      ]
-   },
-   "S44": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S48"
-      ]
-   },
-   "S45": {
-      "isTerminatingState": false,
-      "c": [
-         "S46"
-      ]
-   },
-   "S46": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S44"
-      ]
-   },
-   "S47": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S51",
-         "S53"
-      ]
-   },
-   "S48": {
-      "isTerminatingState": false,
-      "o": [
-         "S49"
-      ]
-   },
-   "S49": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S47"
-      ]
-   },
-   "S50": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S56"
-      ]
-   },
-   "S51": {
-      "isTerminatingState": false,
-      "m": [
-         "S52"
-      ]
-   },
-   "S52": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S50"
-      ]
-   },
-   "S53": {
-      "isTerminatingState": false,
-      "o": [
-         "S54"
-      ]
-   },
-   "S54": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S50"
-      ]
-   },
-   "S55": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S59",
-         "S61"
-      ]
-   },
-   "S56": {
-      "isTerminatingState": false,
-      "r": [
-         "S57"
-      ]
-   },
-   "S57": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S55"
-      ]
-   },
-   "S58": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S64"
-      ]
-   },
-   "S59": {
-      "isTerminatingState": false,
-      "g": [
-         "S60"
-      ]
-   },
-   "S60": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S58"
-      ]
-   },
-   "S61": {
-      "isTerminatingState": false,
-      "n": [
-         "S62"
-      ]
-   },
-   "S62": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S58"
-      ]
-   },
-   "S63": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S67"
-      ]
-   },
-   "S64": {
-      "isTerminatingState": false,
-      "e": [
-         "S65"
-      ]
-   },
-   "S65": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S63"
-      ]
-   },
-   "S66": {
-      "isTerminatingState": true
-   },
-   "S67": {
-      "isTerminatingState": false,
-      "t": [
-         "S68"
-      ]
-   },
-   "S68": {
-      "isTerminatingState": false,
-      "\u03b5": [
-         "S66"
+         "S23"
       ]
    }
 }
