@@ -31,3 +31,7 @@
 >
 > 5. DFA minimization
 >> The DFA is then reduced to a minimized DFA in which each state has a unique behaviour.
+
+***
+
+> You can run the Regex-Analyser flow in the [attached notebook](https://colab.research.google.com/drive/1K4ojwx7v7AmtHjgdMp_RvhCgtiugHa3R?usp=sharing).
