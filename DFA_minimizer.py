@@ -1,8 +1,7 @@
-import os, json
-from graphviz import Digraph
-from NFA_creator import nfaFlow
-from DFA_creator import dfaFlow, drawDfa
+import json
+from DFA_creator import drawDfa
 
+# This function reduces the DFA to a minimized DFA by combining states that have the same behaviour
 def minimizeDfa(dfa_states):
     possible_inputs = []
     for state in dfa_states:
@@ -29,8 +28,6 @@ def minimizeDfa(dfa_states):
     print('\nInitially non-accepting states:', accepting_states)
     print('\nInitially accepting states:', non_accepting_states)
 
-    anyTrap = False
-
     while True:
         breaker = True
 
@@ -40,7 +37,8 @@ def minimizeDfa(dfa_states):
         for group in copy_to_process:
             index += 1
             if len(group) > 1:
-                out_lier = None
+                out_liers = []
+                out_lier_behavior = None
                 for possible_input in possible_inputs:
                     elements_behavior = []
                     for element in group:
@@ -57,8 +55,7 @@ def minimizeDfa(dfa_states):
                                     elements_behavior.append(sub_index)
                                     break
                         else:
-                            elements_behavior.append('X')
-                            anyTrap = True
+                            elements_behavior.append(-1)
                     # print('\nElements behaviour:', elements_behavior, 'for input', possible_input)
 
                     frequency_dict = {}
@@ -67,23 +64,31 @@ def minimizeDfa(dfa_states):
                             frequency_dict[behavior] = 1
                         else:
                             frequency_dict[behavior] = frequency_dict[behavior] + 1
-                    for behavior in frequency_dict:
-                        if frequency_dict[behavior] == 1:
-                            out_lier = behavior
-                    if out_lier is not None:
+
+                    minimum_behavior = len(dfa_states)
+                    if len(frequency_dict) != 1:
+                        for behavior in elements_behavior:
+                            if frequency_dict[behavior] < minimum_behavior:
+                                minimum_behavior = frequency_dict[behavior]
+                    
+                        for behavior in elements_behavior:
+                            if frequency_dict[behavior] == minimum_behavior:
+                                out_lier_behavior = behavior
+                                break
+                    if out_lier_behavior is not None:
                         sub_index = -1
                         for behavior in elements_behavior:
                             sub_index += 1
-                            if behavior == out_lier:
-                                out_lier = group[sub_index]
-                                break
-                        # print('\nElement:', out_lier, 'does not belong to group', group)
+                            if behavior == out_lier_behavior:
+                                out_liers.append(group[sub_index])
+                        # print('\nElements:', out_liers, 'does not belong to group', group)
                         breaker = False
                         break
             if not breaker:
-                group.remove(out_lier)
+                for out_lier in out_liers:
+                    group.remove(out_lier)
                 copy_to_process[index] = group
-                copy_to_process.append([out_lier])
+                copy_to_process.append(out_liers)
                 # print('\nNew groups:', copy_to_process)
                 break
 
@@ -113,6 +118,8 @@ def minimizeDfa(dfa_states):
     print('\nMinimized Dfa:', dfa_states)
     return dfa_states
 
+# This function outputs the minimized DFA states to a json file
+# as well as to a png file illustrating the states and their transitions
 def writeMinimizedDfa(dfa_states):
     with open('Minimized_DFA.json', 'w', encoding='utf-8') as f:
         dict_to_write = {"startingState": "S0"}
@@ -125,7 +132,9 @@ def writeMinimizedDfa(dfa_states):
         json_string = json.dumps(dict_to_write, indent=3)
         f.write(json_string)
 
+# This function holds the flow from the input DFA to the output minimized DFA
 def minimizedDfaFlow(dfa_states):
     minimized_dfa = minimizeDfa(dfa_states)
     drawDfa(minimized_dfa, another_name='Minimized_DFA')
-    writeMinimizedDfa(minimized_dfa)        
+    writeMinimizedDfa(minimized_dfa)
+

@@ -12,7 +12,6 @@ ALL_NUMBERS = "1234567890"
 ALL_SPECIAL = " ~[{]}!@#-_+=$%^&*()?><"
 
 ALL_CHARACTERS = ALL_LETTERS+ALL_NUMBERS+ALL_SPECIAL
-
 def firstElementValidation(regex):
     if len(regex) > 0:
         c = regex[0]
@@ -20,6 +19,7 @@ def firstElementValidation(regex):
             return False
     return True
 
+# A function that makes sure each opening bracket has its closing end using a stack approach
 def regexBracketValidation(regex):
     all_brackets = []
     index = 0
@@ -91,6 +91,7 @@ def regexBracketValidation(regex):
         return False
     return True
 
+# A function that makes sure that each backslash (not having a first backslash) has a following character
 def lastBackslashValidation(regex):
     if regex[-1] == '\\':
         back_iterator = len(regex) - 2
@@ -101,6 +102,7 @@ def lastBackslashValidation(regex):
         return backslash_count % 2 == 1
     return True
 
+# A function that makes sure the contents of square brackets in a given regex are valid
 def squareBracketContentsValidation(regex):
     if len(regex) == 0 or (len(regex) == 1 and regex[0] == '^'):
         return False
@@ -123,6 +125,7 @@ def squareBracketContentsValidation(regex):
             return False
     return True
 
+# A function that makes sure the contents of brackets are valid as if the contents of brackets are a regex on their own
 def bracketContentsValidation(regex):
     index = 0
     bracket_indices_stack = []
@@ -171,6 +174,7 @@ def bracketContentsValidation(regex):
         index += 1
     return True
 
+# A function using all the previous functions to validate a regex
 def validateRegex(regex):
     if len(regex) == 0:
         return True
@@ -184,6 +188,98 @@ def validateRegex(regex):
         return False
     return True
 
+# A function used to programmatically add extra brackets that helps in ORing (alternation) of operands for the OR '|' operator
+def addOrBrackets(regex):
+    or_indices = []
+    brackets_stack = []
+    index = -1
+    for c in regex:
+        index += 1
+        if (c == '(' or c == '[') and (len(brackets_stack) == 0 or brackets_stack[-1] != '['):
+            brackets_stack.append(c)
+        elif c == ']' and (len(brackets_stack) == 0 or brackets_stack[-1] == '['):
+            brackets_stack.pop()
+        elif c == ')' and (len(brackets_stack) == 0 or brackets_stack[-1] != '['):
+            brackets_stack.pop()
+        elif c == '|' and (len(brackets_stack) == 0 or brackets_stack[-1] != '['):
+            or_indices.append(index)
+
+    if len(or_indices) == 0:
+        return regex
+    regex_parts = []
+    index = -1
+    iterator = 0
+    regex_part = ''
+    for c in regex:
+        index += 1
+        if iterator < len(or_indices) and index == or_indices[iterator]:
+            regex_parts.append(regex_part)
+            regex_part = ''
+            iterator += 1
+        else:
+            regex_part += c
+    regex_parts.append(regex_part)
+    print(regex_parts)
+
+    index = -1
+    for regex_part in regex_parts:
+        index += 1
+        opening_brackets_count = 0
+        sub_index = -1
+        marker = None
+        first_open_bracket_index = None
+        first_close_bracket_index = None
+        for c in regex_part:
+            sub_index += 1
+            if c == '(':
+                if first_open_bracket_index is None:
+                    first_open_bracket_index = sub_index
+                opening_brackets_count += 1
+                marker = sub_index
+            elif c == ')':
+                if first_close_bracket_index is None:
+                    first_close_bracket_index = sub_index
+                opening_brackets_count -= 1
+                marker = sub_index
+        if marker is None or (opening_brackets_count == 0 and (first_open_bracket_index < first_close_bracket_index)):
+            regex_part = '(' + regex_part + ')'
+        else:
+            sub_index = -1
+            new_regex_part = ''
+            for c in regex_part:
+                sub_index += 1                    
+                if opening_brackets_count > 0:
+                    if sub_index == first_open_bracket_index:
+                        new_regex_part += '('
+                elif opening_brackets_count < 0:
+                    if sub_index == first_close_bracket_index:
+                        new_regex_part += ')'
+                else:
+                    if sub_index == first_open_bracket_index:
+                        new_regex_part += '('
+                    elif sub_index == first_close_bracket_index:
+                        new_regex_part += ')'
+
+                new_regex_part += c
+            if opening_brackets_count > 0:
+                new_regex_part += ')'
+            elif opening_brackets_count < 0:
+                new_regex_part = '(' + new_regex_part
+            regex_part = new_regex_part
+        regex_parts[index] = regex_part
+    print(regex_parts)
+
+    new_regex = regex_parts[0]
+    index = -1
+    for _ in regex_parts:
+        index += 1
+        if index == len(regex_parts) - 1:
+            break
+        new_regex += '|' + regex_parts[index + 1]
+    return new_regex
+
+# A function that takes contents of a square brackets, and parse it using regex rules returning
+# the allowed or not allowed (in case of negation) characters
 def lexSquareBrackets(regex, level):
     is_allowed = True
     allowed_characters = []
@@ -240,7 +336,9 @@ def lexSquareBrackets(regex, level):
     
     return (allowed_all, level, is_allowed)
 
-def lexBrackets(regex, level = 0, character_level_extra = []):
+# The main recursive function used to parse the regex returning a list of tuples (character, level, extra)
+# The list of tuples is then used to create the NFA states
+def lexBrackets(regex, level = 0):
     i = -1
     last_ignorer = 0
     indices = []
@@ -269,6 +367,7 @@ def lexBrackets(regex, level = 0, character_level_extra = []):
                 elif regex[j] == ')':
                     brackets_indices.pop()
                     if len(brackets_indices) == 0:
+                        print(regex[i+1:j])
                         lexBrackets(regex[i+1:j], level + 1)
                         last_ignorer = j
                         break
@@ -307,8 +406,8 @@ def lexBrackets(regex, level = 0, character_level_extra = []):
     # print(regex, indices)
     return character_level_extra
 
-
-def removeUnnessecaryBrackets(character_level_extra):
+# This function is used to remove unnecessary brackets within the output of the parsed regex
+def removeUnnecessaryBrackets(character_level_extra):
     while True:
         found = False
         index = -1
@@ -331,6 +430,7 @@ def removeUnnessecaryBrackets(character_level_extra):
             break
     return character_level_extra
 
+# This function is used to fill necessary yet empty brackets with EPSILONS
 def fillEmptyBrackets(character_level_extra):
     index = -1
     for c_l_e in character_level_extra:
@@ -342,13 +442,15 @@ def fillEmptyBrackets(character_level_extra):
                 character_level_extra.insert(index + 1, (EPSILON, level + 1, None))
     return character_level_extra
 
+# This function is used to fill the surroundings of OR operators in case of being empty with EPSILONS
+# This function is probably redundant after adding the pre-processing block
 def fillEmptyOrsRight(character_level_extra):
     index = -1
     for c_l_e in character_level_extra:
         index += 1
         level = c_l_e[1]
         extra = c_l_e[2]
-        if extra is not None:
+        if extra is not None and type(extra) is not bool:
             if len(extra) == 1:
                 if extra == OR:
                     if index == len(character_level_extra) - 1 or character_level_extra[index + 1][0] == ')':
@@ -358,15 +460,16 @@ def fillEmptyOrsRight(character_level_extra):
                         character_level_extra.insert(index + 1, (EPSILON, level, None))
     return character_level_extra
 
-# State: (name, isTerminatingState, [(input, State)]
 global states
 states = []
-   
+
+# This recursive function parses the list of tuples of character, level and extra to create the NFA states
 def createStates(character_level_extra, state_index = 1, previous_state_index = 0, next_state_index = None):
     base_call = False
     if next_state_index is None:
         base_call = True
-        states = [('S0', False, [])]
+        states.clear()
+        states.append(('S0', False, []))
     else:
         absolute_next_index = next_state_index
         absolute_previous_index = previous_state_index
@@ -465,6 +568,7 @@ def createStates(character_level_extra, state_index = 1, previous_state_index = 
                     extra = extra[1]
             if character == '.':
                 character = "CHAR"
+                character = '.'
             elif character == '\\w':
                 character = "ALPHANUM"
             elif character == '\\W':
@@ -524,9 +628,13 @@ def createStates(character_level_extra, state_index = 1, previous_state_index = 
     else:
         for state in states:
             state = (state[0], state[1], list(dict.fromkeys(state[2])))
-    
+
+# This function writes the NFA states in a json file
 def writeNfa(states):
+    open('NFA.json', 'w').close()
+
     with open('NFA.json', 'w', encoding='utf-8') as f:
+        json_string = ""
         dict_to_write = {"startingState": "S0"}
         for state in states:
             sub_dict = {}
@@ -539,6 +647,7 @@ def writeNfa(states):
         json_string = json.dumps(dict_to_write, indent=3)
         f.write(json_string)
 
+# This function outputs the NFA states to a png file illustrating the states and their transitions
 def drawNfa(view_graph):
     nfa_graph = Digraph(graph_attr={'rankdir': 'LR'})
     with open('NFA.json', 'r', encoding='utf-8') as f:
@@ -569,15 +678,18 @@ def drawNfa(view_graph):
     nfa_graph.render(picFile, view = view_graph, format = 'png', overwrite_source = True)
     os.remove("NFA")
 
+# This function holds the flow from the input regex to the output NFA
 def nfaFlow(view_graph = False):
     input_regex = input("\nEnter regular expression: ")
     if validateRegex(input_regex):
-        print('\nValid regex\n')
-
-        character_level_extra = lexBrackets(input_regex, 0, [])
+        print('\nValid regex:', input_regex, '\n')
+        input_regex = addOrBrackets(input_regex)
+        global character_level_extra
+        character_level_extra = []
+        character_level_extra = lexBrackets(input_regex)
 
         character_level_extra = fillEmptyOrsRight(character_level_extra)
-        character_level_extra = removeUnnessecaryBrackets(character_level_extra)
+        character_level_extra = removeUnnecessaryBrackets(character_level_extra)
         character_level_extra = fillEmptyBrackets(character_level_extra)
         print('Characters to parse:', character_level_extra, '\n')
 

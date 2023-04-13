@@ -3,6 +3,7 @@ from graphviz import Digraph
 
 EPSILON = "ε" #ε
 
+# This function reads the NFA json file and restore its different states with their transitions
 def getNfaStates():
     with open('NFA.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
@@ -21,7 +22,7 @@ def getNfaStates():
 
     return states
 
-# Again, not always working algorith; it only works if every input character is unique, so a new function is added
+# This function removes EPSILONS and combines states that are connected together using EPSILONS
 def epsilonlessNfaStates(nfa_states):
     possible_epsiloness_states = {}
 
@@ -72,6 +73,7 @@ def epsilonlessNfaStates(nfa_states):
 
     return epsilonless_states
 
+# This function takes the epsilonless states and converts to DFA states
 def createDfaStates(nfa_states):
     is_already_dfa = True
     for state in nfa_states:
@@ -90,6 +92,7 @@ def createDfaStates(nfa_states):
 
     possible_inputs = set()
     for state in nfa_states:
+        print(state, nfa_states[state][1])
         for input_next in nfa_states[state][1]:
             possible_inputs.add(input_next[0])
     # print('Possible inputs:', possible_inputs, '\n')
@@ -98,7 +101,9 @@ def createDfaStates(nfa_states):
 
     dfa_states = {'S0': (nfa_states['S0'][0], [])}
 
+    print('Possible inputs:', possible_inputs)
     for possible_input in possible_inputs:
+        print(possible_input)
         current_state_to_be = ['S0']
         index = -1
         while index < len(nfa_states) - 1:
@@ -111,7 +116,10 @@ def createDfaStates(nfa_states):
         current_state_to_be.remove('S0')
         if current_state_to_be not in explored_sets_of_states:
             explored_sets_of_states.append(current_state_to_be)
-        dfa_states['S0'][1].append((possible_input, current_state_to_be))
+        if len(current_state_to_be) > 0:
+            dfa_states['S0'][1].append((possible_input, current_state_to_be))
+
+    print('Initial dfa states:', dfa_states)
 
     set_of_new_states = {}
 
@@ -119,6 +127,10 @@ def createDfaStates(nfa_states):
     for states in explored_sets_of_states:
         explored_state_index += 1
         set_of_new_states['S'+str(explored_state_index)] = states
+
+    for state in nfa_states:
+        for input_next in nfa_states[state][1]:
+            possible_inputs.add(input_next[0])
 
     state_index = 0
     for set_of_states in explored_sets_of_states:
@@ -149,7 +161,8 @@ def createDfaStates(nfa_states):
                     if set_of_new_states[state_name] == current_state_to_be:
                         list_of_transitions.append((possible_input, state_name))
                         break
-        dfa_states['S'+str(state_index)] = (is_terminating, list_of_transitions)
+        if len(list_of_transitions) > 0 or is_terminating:
+            dfa_states['S'+str(state_index)] = (is_terminating, list_of_transitions)
 
     # Renaming states of start state:
     new_names = []
@@ -162,6 +175,7 @@ def createDfaStates(nfa_states):
 
     return dfa_states
 
+# This function outputs the DFA states to a png file illustrating the states and their transitions
 def drawDfa(dfa_states, view_graph = False, another_name = 'DFA'):
     dfa_graph = Digraph(graph_attr={'rankdir': 'LR'})
 
@@ -185,6 +199,7 @@ def drawDfa(dfa_states, view_graph = False, another_name = 'DFA'):
     dfa_graph.render(picFile, view = view_graph, format = 'png', overwrite_source = True)
     os.remove(another_name)
 
+# This function holds the flow from the input NFA to the output DFA
 def dfaFlow(view_graph = False):
     nfa_states = getNfaStates()
     epsilonless_nfa_states = epsilonlessNfaStates(nfa_states)
