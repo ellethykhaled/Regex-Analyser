@@ -3,7 +3,7 @@
 ## Project Description
 > The Regex Analyser is an academic assignment given in the course of Languages and Compilers `CMPN403` at Cairo University - Faculty of Engineering - Credit Hours System - Communication and Computer Engineering Program.
 >
-> The assignment covers the different functionalities for a regex analyser which is a basic component in a lexical analyser
+> The assignment covers the different functionalities for a regex analyser which is a basic component in a lexical analyser.
 
 ***
 
@@ -35,3 +35,5 @@
 ***
 
 > You can run the Regex-Analyser flow in the [attached notebook](https://colab.research.google.com/drive/1K4ojwx7v7AmtHjgdMp_RvhCgtiugHa3R?usp=sharing).
+> 
+> Examples of [test cases](https://github.com/devyetii/Regex-Test-Cases). 
